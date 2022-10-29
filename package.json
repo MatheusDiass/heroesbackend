@@ -1,0 +1,40 @@
+{
+  "name": "heroesbackend",
+  "version": "1.0.0",
+  "description": "Project to study methodologies and technologies (Clean Architecture, TDD, Design Patterns)",
+  "main": "app.js",
+  "scripts": {
+    "commit": "git-cz",
+    "test": "vitest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MatheusDiass/heroesbackend.git"
+  },
+  "author": "Matheus Dias",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MatheusDiass/heroesbackend/issues"
+  },
+  "homepage": "https://github.com/MatheusDiass/heroesbackend#readme",
+  "devDependencies": {
+    "@commitlint/cli": "^17.1.2",
+    "@commitlint/config-conventional": "^17.1.0",
+    "@typescript-eslint/eslint-plugin": "^5.41.0",
+    "@typescript-eslint/parser": "^5.41.0",
+    "commitizen": "^4.2.5",
+    "cz-conventional-changelog": "^3.3.0",
+    "eslint": "^8.26.0",
+    "eslint-config-prettier": "^8.5.0",
+    "husky": "^8.0.1",
+    "prettier": "^2.7.1",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^4.8.4",
+    "vitest": "^0.24.3"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}
