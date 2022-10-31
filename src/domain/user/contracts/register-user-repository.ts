@@ -1,5 +1,5 @@
-import { User } from '../';
+import { UserRegistration } from '../';
 
 export interface IRegisterUserRepository {
-  registerUser(user: User): Promise<void>;
+  registerUser({ user, password }: UserRegistration): Promise<void>;
 }
