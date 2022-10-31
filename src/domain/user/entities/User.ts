@@ -30,4 +30,20 @@ export class User {
 
     this.user = props;
   }
+
+  get getName() {
+    return this.user.name;
+  }
+
+  get getEmail() {
+    return this.user.email;
+  }
+
+  get getPassword() {
+    return this.user.password;
+  }
+
+  set setPassword(password: string) {
+    this.user.password = password;
+  }
 }
