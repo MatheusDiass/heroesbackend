@@ -2,46 +2,47 @@ import { describe, expect, it } from 'vitest';
 
 import { User } from '../';
 
+type UserRegistration = {
+  user: User;
+  password: string;
+};
+
 class RegisterUserUseCase {
   constructor(
     private encrypter: EncrypterSpy,
-    private registerUserRepository: RegisterUserRepositorySpy,
+    private registerUserRepository: IRegisterUserRepository,
     private mailProvider: MailProviderSpy
   ) {}
 
-  async execute(user: User): Promise<User> {
-    const hashPassword = this.encrypter.createHash(user.getPassword);
-    user.setPassword = hashPassword;
-    await this.registerUserRepository.registerUser(user);
+  async execute({ user, password }: UserRegistration): Promise<User> {
+    const hashPassword = this.encrypter.createHash(password);
+    await this.registerUserRepository.registerUser({
+      user,
+      password: hashPassword,
+    });
     await this.mailProvider.sendEmail('Test');
 
     return user;
   }
 }
 
-// interface IRegisterUserRepository {
-//   registerUser(user: User): Promise<User>;
-// }
+interface IRegisterUserRepository {
+  registerUser({ user, password }: UserRegistration): Promise<User>;
+}
+class RegisterUserRepositorySpy implements IRegisterUserRepository {
+  private password = '';
 
-class RegisterUserRepositorySpy {
-  async registerUser(user: User): Promise<User> {
+  async registerUser({ user, password }: UserRegistration): Promise<User> {
+    this.password = password;
     return user;
   }
 }
-
-// interface IEncrypter {
-//   createHash(text: string): string;
-// }
 
 class EncrypterSpy {
   createHash(text: string): string {
     return `${text}hash`;
   }
 }
-
-// interface IMailProviderSpy {
-//   sendEmail(message: string): Promise<void>;
-// }
 
 class MailProviderSpy {
   public emailSent = false;
@@ -53,14 +54,16 @@ class MailProviderSpy {
   }
 }
 
-const makeUser = function () {
-  return new User({
-    name: 'Matheus',
-    lastName: 'Dias',
-    nickname: 'MrDias',
-    email: 'dias.math0@gmail.com',
-    password: 'matheus@@dias',
-  });
+const makeUserRegistrationData = (): UserRegistration => {
+  return {
+    user: new User({
+      name: 'Test',
+      lastName: 'Test',
+      nickname: 'MrTest',
+      email: 'test@test.com',
+    }),
+    password: 'test@@test',
+  };
 };
 
 const makeSut = function () {
@@ -115,57 +118,31 @@ const makeMailProviderError = () => {
 };
 
 describe('Register User Use Case', () => {
-  it('should have encrypted password in user entity instance after calling', async () => {
-    const password = 'matheus@@dias';
-
-    const user = new User({
-      name: 'Matheus',
-      lastName: 'Dias',
-      nickname: 'MrDias',
-      email: 'dias.math0@gmail.com',
-      password,
-    });
-
-    const encrypter = new EncrypterSpy();
-    const { sut } = makeSut();
-    const userInfo = await sut.execute(user);
-    const passwordHash = encrypter.createHash(password);
-
-    expect(userInfo.getPassword).toEqual(passwordHash);
-  });
-
   it('should return the same user information after registration', async () => {
-    const user = new User({
-      name: 'Matheus',
-      lastName: 'Dias',
-      nickname: 'MrDias',
-      email: 'dias.math0@gmail.com',
-      password: 'matheus@@dias',
-    });
-
+    const userRegistrationData = makeUserRegistrationData();
     const { sut } = makeSut();
-    const userInfo = await sut.execute(user);
+    const user = await sut.execute(userRegistrationData);
 
-    expect(userInfo).toEqual(user);
+    expect(user).toEqual(userRegistrationData.user);
   });
 
   it('should sent a registration confirmation email', async () => {
-    const user = makeUser();
+    const userRegistrationData = makeUserRegistrationData();
     const { sut, mailProviderSpy } = makeSut();
 
-    await sut.execute(user);
+    await sut.execute(userRegistrationData);
 
     expect(mailProviderSpy.emailSent).toBe(true);
   });
 
   it('should throw if any dependency throws', () => {
-    const user = makeUser();
+    const userRegistrationData = makeUserRegistrationData();
     const sut = new RegisterUserUseCase(
       makeEncrypterError(),
       makeRegisterUserRepositoryError(),
       makeMailProviderError()
     );
 
-    expect(sut.execute(user)).rejects.toThrow();
+    expect(sut.execute(userRegistrationData)).rejects.toThrow();
   });
 });

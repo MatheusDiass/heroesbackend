@@ -4,7 +4,6 @@ type UserProps = {
   lastName: string;
   nickname?: string;
   email: string;
-  password: string;
   bio?: string;
 };
 
@@ -24,10 +23,6 @@ export class User {
       throw new Error('Email can not be empty.');
     }
 
-    if (props.password.trim() === '') {
-      throw new Error('Password can not be empty.');
-    }
-
     this.user = props;
   }
 
@@ -37,13 +32,5 @@ export class User {
 
   get getEmail() {
     return this.user.email;
-  }
-
-  get getPassword() {
-    return this.user.password;
-  }
-
-  set setPassword(password: string) {
-    this.user.password = password;
   }
 }
