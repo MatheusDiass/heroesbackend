@@ -1,5 +1,5 @@
-import { ICodeGenerator, IEncrypter, IMailProvider } from '../../../utils';
-import { User, UserRegistration, IRegisterUserRepository } from '../';
+import { ICodeGenerator, IEncrypter, IMailProvider } from '../../../../utils';
+import { User, IRegisterUserRepository } from '../../';
 
 export class RegisterUserUseCase {
   constructor(
@@ -9,15 +9,13 @@ export class RegisterUserUseCase {
     private codeGenerator: ICodeGenerator
   ) {}
 
-  async execute({ user, password }: UserRegistration): Promise<User> {
+  async execute(user: User): Promise<User> {
     //Create password hash
-    const hashPassword = this.encrypter.createHash(password);
+    const hashPassword = this.encrypter.createHash(user.getPassword);
+    user.setPassword = hashPassword;
 
     //Register the user
-    await this.registerUserRepository.registerUser({
-      user,
-      password: hashPassword,
-    });
+    await this.registerUserRepository.registerUser(user);
 
     //Generate the account confirmation code to send in the email
     const code = this.codeGenerator.generateCode();

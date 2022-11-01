@@ -1,11 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { User } from '../';
-
-type UserRegistration = {
-  user: User;
-  password: string;
-};
+import { User } from '../../';
 
 class RegisterUserUseCase {
   constructor(
@@ -14,12 +9,10 @@ class RegisterUserUseCase {
     private mailProvider: MailProviderSpy
   ) {}
 
-  async execute({ user, password }: UserRegistration): Promise<User> {
-    const hashPassword = this.encrypter.createHash(password);
-    await this.registerUserRepository.registerUser({
-      user,
-      password: hashPassword,
-    });
+  async execute(user: User): Promise<User> {
+    const hashPassword = this.encrypter.createHash(user.getPassword);
+    user.setPassword = hashPassword;
+    await this.registerUserRepository.registerUser(user);
     await this.mailProvider.sendEmail('Test');
 
     return user;
@@ -27,13 +20,10 @@ class RegisterUserUseCase {
 }
 
 interface IRegisterUserRepository {
-  registerUser({ user, password }: UserRegistration): Promise<User>;
+  registerUser(user: User): Promise<User>;
 }
 class RegisterUserRepositorySpy implements IRegisterUserRepository {
-  private password = '';
-
-  async registerUser({ user, password }: UserRegistration): Promise<User> {
-    this.password = password;
+  async registerUser(user: User): Promise<User> {
     return user;
   }
 }
@@ -54,16 +44,14 @@ class MailProviderSpy {
   }
 }
 
-const makeUserRegistrationData = (): UserRegistration => {
-  return {
-    user: new User({
-      name: 'Test',
-      lastName: 'Test',
-      nickname: 'MrTest',
-      email: 'test@test.com',
-    }),
+const makeUserRegistrationData = (): User => {
+  return new User({
+    name: 'Test',
+    lastName: 'Test',
+    nickname: 'MrTest',
+    email: 'test@test.com',
     password: 'test@@test',
-  };
+  });
 };
 
 const makeSut = function () {
@@ -123,7 +111,7 @@ describe('Register User Use Case', () => {
     const { sut } = makeSut();
     const user = await sut.execute(userRegistrationData);
 
-    expect(user).toEqual(userRegistrationData.user);
+    expect(user).toEqual(userRegistrationData);
   });
 
   it('should sent a registration confirmation email', async () => {
@@ -135,7 +123,7 @@ describe('Register User Use Case', () => {
     expect(mailProviderSpy.emailSent).toBe(true);
   });
 
-  it('should throw if any dependency throws', () => {
+  it('should throw error if any dependency throws', () => {
     const userRegistrationData = makeUserRegistrationData();
     const sut = new RegisterUserUseCase(
       makeEncrypterError(),
