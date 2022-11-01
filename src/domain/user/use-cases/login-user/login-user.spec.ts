@@ -132,7 +132,6 @@ describe('Login User Use Case', () => {
     expect(promise).rejects.toThrow();
   });
 
-  //Estou fazendo esse teste
   it('should throw error if user password is incorrect', () => {
     const loginData = {
       email: 'test2@test.com',

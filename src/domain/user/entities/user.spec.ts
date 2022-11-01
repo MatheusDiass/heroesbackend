@@ -1,17 +1,16 @@
 import { describe, expect, it } from 'vitest';
 
-//Entity
 import { User } from './user';
 
 describe('User', () => {
   const userProps = {
     id: 1,
-    name: 'Matheus Dias',
-    lastName: 'Dias',
-    nickname: 'MrDias',
-    email: 'dias.math0@gmail.com',
-    password: 'matheus@@dias',
-    bio: 'Minha Bio',
+    name: 'Test',
+    lastName: 'Test',
+    nickname: 'MrTest',
+    email: 'Test@Test.com',
+    password: 'Test@@1',
+    bio: 'My bio',
   };
 
   it('should return an error when user name is empty', () => {
@@ -63,7 +62,7 @@ describe('User', () => {
   });
 
   it('should assign the password in the correct property', () => {
-    const password = 'matheus12345';
+    const password = 'test12345';
     const user = new User(userProps);
     user.setPassword = password;
 
