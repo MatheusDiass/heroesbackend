@@ -3,7 +3,7 @@ type HeroProps = {
   name: string;
   description?: string;
   image?: string;
-  storie?: Story[];
+  stories?: Story[];
   events?: Event[];
 };
 
@@ -25,6 +25,22 @@ export class Hero {
       throw new Error('Name can not be empty.');
     }
 
+    if (!props.stories) {
+      props.stories = [];
+    }
+
+    if (!props.events) {
+      props.events = [];
+    }
+
     this.hero = props;
+  }
+
+  get getStories(): Story[] | undefined {
+    return this.hero.stories;
+  }
+
+  get getEvents(): Event[] | undefined {
+    return this.hero.events;
   }
 }
