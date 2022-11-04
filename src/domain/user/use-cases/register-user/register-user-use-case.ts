@@ -1,8 +1,9 @@
 import { ICodeGenerator, IEncrypter, IMailProvider } from '../../../../utils';
-import { User, IRegisterUserRepository } from '../../';
+import { User, IRegisterUserRepository, IMailValidator } from '../../';
 
 export class RegisterUserUseCase {
   constructor(
+    private mailValidator: IMailValidator,
     private encrypter: IEncrypter,
     private registerUserRepository: IRegisterUserRepository,
     private mailProvider: IMailProvider,
@@ -10,6 +11,13 @@ export class RegisterUserUseCase {
   ) {}
 
   async execute(user: User): Promise<User> {
+    //Check if the mail is valid
+    const isMailValid = this.mailValidator.validateMail(user.getEmail);
+
+    if (!isMailValid) {
+      throw new Error();
+    }
+
     //Create password hash
     const hashPassword = this.encrypter.createHash(user.getPassword);
     user.setPassword = hashPassword;

@@ -2,17 +2,24 @@ import { describe, expect, it } from 'vitest';
 import { User } from '../../';
 
 type LoginUser = {
-  email: string;
+  mail: string;
   password: string;
 };
 
 class LoginUserUseCase {
   constructor(
+    private readonly mailValidator: MailValidator,
     private readonly findUserByEmailRepository: IFindUserByEmailRepository
   ) {}
 
-  async execute({ email, password }: LoginUser): Promise<User> {
-    if (email.trim() === '') {
+  async execute({ mail, password }: LoginUser): Promise<User> {
+    if (mail.trim() === '') {
+      throw new Error();
+    }
+
+    const isMailValid = this.mailValidator.validateMail(mail);
+
+    if (!isMailValid) {
       throw new Error();
     }
 
@@ -20,7 +27,7 @@ class LoginUserUseCase {
       throw new Error();
     }
 
-    const user = await this.findUserByEmailRepository.findUserByEmail(email);
+    const user = await this.findUserByEmailRepository.findUserByEmail(mail);
 
     if (!user) {
       throw new Error();
@@ -79,6 +86,34 @@ class FindUserByEmailRepository implements IFindUserByEmailRepository {
   }
 }
 
+class MailValidator {
+  validateMail(email: string): boolean {
+    const regexp =
+      /^(([^<>()[\]\\.,;:\s@\\"]+(\.[^<>()[\]\\.,;:\s@\\"]+)*)|(\\".+\\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+    if (email.match(regexp)) {
+      return true;
+    }
+
+    return false;
+  }
+}
+
+const makeLoginData = () => {
+  return {
+    mail: 'test1@test.com',
+    password: 'test1@@test1',
+  };
+};
+
+const makeSut = () => {
+  const mailValidator = new MailValidator();
+  const findUserByEmailRepository = new FindUserByEmailRepository();
+  const sut = new LoginUserUseCase(mailValidator, findUserByEmailRepository);
+
+  return sut;
+};
+
 const makeFindUserByEmailRepositoryError = () => {
   class FindUserByEmailRepository implements IFindUserByEmailRepository {
     private email = '';
@@ -92,66 +127,68 @@ const makeFindUserByEmailRepositoryError = () => {
   return new FindUserByEmailRepository();
 };
 
+const makeMailValidatorError = () => {
+  class MailValidator {
+    validateMail(): boolean {
+      throw new Error();
+    }
+  }
+
+  return new MailValidator();
+};
+
 describe('Login User Use Case', () => {
   it('should throw error if no email is provided', () => {
-    const loginData = {
-      email: '',
-      password: 'test@@test',
-    };
+    const loginData = makeLoginData();
+    loginData.mail = '';
 
-    const findUserByEmailRepository = new FindUserByEmailRepository();
-    const sut = new LoginUserUseCase(findUserByEmailRepository);
-    const promise = sut.execute(loginData);
+    const sut = makeSut();
 
-    expect(promise).rejects.toThrow();
+    expect(sut.execute(loginData)).rejects.toThrow();
+  });
+
+  it('should throw error if email is incorrect format', async () => {
+    const loginData = makeLoginData();
+    loginData.mail = 'test1@.com';
+    const sut = makeSut();
+
+    expect(sut.execute(loginData)).rejects.toThrow();
   });
 
   it('should throw error if no password is provided', () => {
-    const loginData = {
-      email: 'test@test.com',
-      password: 'test@@test',
-    };
+    const loginData = makeLoginData();
+    loginData.password = '';
 
-    const findUserByEmailRepository = new FindUserByEmailRepository();
-    const sut = new LoginUserUseCase(findUserByEmailRepository);
-    const promise = sut.execute(loginData);
+    const sut = makeSut();
 
-    expect(promise).rejects.toThrow();
+    expect(sut.execute(loginData)).rejects.toThrow();
   });
 
   it('should throw error if user does not exist', () => {
-    const loginData = {
-      email: 'test@test.com',
-      password: 'test@@test',
-    };
+    const loginData = makeLoginData();
+    loginData.mail = 'test@test.com';
 
-    const findUserByEmailRepository = new FindUserByEmailRepository();
-    const sut = new LoginUserUseCase(findUserByEmailRepository);
-    const promise = sut.execute(loginData);
+    const sut = makeSut();
 
-    expect(promise).rejects.toThrow();
+    expect(sut.execute(loginData)).rejects.toThrow();
   });
 
   it('should throw error if user password is incorrect', () => {
-    const loginData = {
-      email: 'test2@test.com',
-      password: 'test@@test2',
-    };
+    const loginData = makeLoginData();
+    loginData.password = 'test@@test2';
 
-    const findUserByEmailRepository = new FindUserByEmailRepository();
-    const sut = new LoginUserUseCase(findUserByEmailRepository);
-    const promise = sut.execute(loginData);
+    const sut = makeSut();
 
-    expect(promise).rejects.toThrow();
+    expect(sut.execute(loginData)).rejects.toThrow();
   });
 
   it('should throw error if any dependency throws', () => {
-    const loginData = {
-      email: 'test@test.com',
-      password: 'test@@test',
-    };
+    const loginData = makeLoginData();
 
-    const sut = new LoginUserUseCase(makeFindUserByEmailRepositoryError());
+    const sut = new LoginUserUseCase(
+      makeMailValidatorError(),
+      makeFindUserByEmailRepositoryError()
+    );
 
     expect(sut.execute(loginData)).rejects.toThrow();
   });

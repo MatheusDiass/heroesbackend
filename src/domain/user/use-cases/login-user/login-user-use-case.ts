@@ -1,14 +1,26 @@
-import { User } from '../../';
-import { IFindUserByEmailRepository, LoginUser } from '../../';
+import {
+  User,
+  LoginUser,
+  IMailValidator,
+  IFindUserByEmailRepository,
+} from '../../';
 
 export class LoginUserUseCase {
   constructor(
+    private readonly mailValidator: IMailValidator,
     private readonly findUserByEmailRepository: IFindUserByEmailRepository
   ) {}
 
   async execute({ email, password }: LoginUser): Promise<User> {
-    //Check if the email has not been provided
+    //Check if the mail has not been provided
     if (email.trim() === '') {
+      throw new Error();
+    }
+
+    //Check if the mail is valid
+    const isMailValid = this.mailValidator.validateMail(email);
+
+    if (!isMailValid) {
       throw new Error();
     }
 
