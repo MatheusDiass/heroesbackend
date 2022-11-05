@@ -1,13 +1,19 @@
 import { ICodeGenerator, IEncrypter, IMailProvider } from '../../../../utils';
-import { User, IRegisterUserRepository, IMailValidator } from '../../';
+import {
+  User,
+  IRegisterUserRepository,
+  IMailValidator,
+  IPasswordValidator,
+} from '../../';
 
 export class RegisterUserUseCase {
   constructor(
-    private mailValidator: IMailValidator,
-    private encrypter: IEncrypter,
-    private registerUserRepository: IRegisterUserRepository,
-    private mailProvider: IMailProvider,
-    private codeGenerator: ICodeGenerator
+    private readonly mailValidator: IMailValidator,
+    private readonly passwordValidator: IPasswordValidator,
+    private readonly encrypter: IEncrypter,
+    private readonly registerUserRepository: IRegisterUserRepository,
+    private readonly mailProvider: IMailProvider,
+    private readonly codeGenerator: ICodeGenerator
   ) {}
 
   async execute(user: User): Promise<User> {
@@ -15,6 +21,15 @@ export class RegisterUserUseCase {
     const isMailValid = this.mailValidator.validateMail(user.getEmail);
 
     if (!isMailValid) {
+      throw new Error();
+    }
+
+    //Check if the password is valid
+    const isPasswordValid = this.passwordValidator.validatePassword(
+      user.getPassword
+    );
+
+    if (!isPasswordValid) {
       throw new Error();
     }
 

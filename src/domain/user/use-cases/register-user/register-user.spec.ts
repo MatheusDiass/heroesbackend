@@ -4,16 +4,25 @@ import { User } from '../../';
 
 class RegisterUserUseCase {
   constructor(
-    private mailValidator: MailValidator,
-    private encrypter: EncrypterSpy,
-    private registerUserRepository: IRegisterUserRepository,
-    private mailProvider: MailProviderSpy
+    private readonly mailValidator: MailValidator,
+    private readonly passwordValidator: PasswordValidator,
+    private readonly encrypter: EncrypterSpy,
+    private readonly registerUserRepository: IRegisterUserRepository,
+    private readonly mailProvider: MailProviderSpy
   ) {}
 
   async execute(user: User): Promise<User> {
     const isMailValid = this.mailValidator.validateMail(user.getEmail);
 
     if (!isMailValid) {
+      throw new Error();
+    }
+
+    const isPasswordValid = this.passwordValidator.validatePassword(
+      user.getPassword
+    );
+
+    if (!isPasswordValid) {
       throw new Error();
     }
 
@@ -64,6 +73,19 @@ class MailValidator {
   }
 }
 
+class PasswordValidator {
+  validatePassword(password: string): boolean {
+    const regexp =
+      /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/;
+
+    if (password.match(regexp)) {
+      return true;
+    }
+
+    return false;
+  }
+}
+
 const makeUserRegistrationData = (user?: User): User => {
   if (user) {
     return user;
@@ -74,17 +96,19 @@ const makeUserRegistrationData = (user?: User): User => {
     lastName: 'Test',
     nickname: 'MrTest',
     email: 'test@test.com',
-    password: 'test@@test',
+    password: 'Test@@test1',
   });
 };
 
 const makeSut = function () {
   const emailValidator = new MailValidator();
+  const passwordValidator = new PasswordValidator();
   const encrypter = new EncrypterSpy();
   const registerUserRepositorySpy = new RegisterUserRepositorySpy();
   const mailProviderSpy = new MailProviderSpy();
   const sut = new RegisterUserUseCase(
     emailValidator,
+    passwordValidator,
     encrypter,
     registerUserRepositorySpy,
     mailProviderSpy
@@ -114,6 +138,16 @@ const makeEncrypterError = () => {
   }
 
   return new EncrypterSpy();
+};
+
+const makePasswordValidatorError = () => {
+  class PasswordValidator {
+    validatePassword(): boolean {
+      throw new Error();
+    }
+  }
+
+  return new PasswordValidator();
 };
 
 const makeRegisterUserRepositoryError = () => {
@@ -157,6 +191,21 @@ describe('Register User Use Case', () => {
     expect(sut.execute(userRegistrationData)).rejects.toThrow();
   });
 
+  it('should throw error if password is incorrect format', async () => {
+    const userRegistrationData = makeUserRegistrationData(
+      new User({
+        name: 'Test',
+        lastName: 'Test',
+        nickname: 'MrTest',
+        email: 'test@test.com',
+        password: 'a',
+      })
+    );
+    const { sut } = makeSut();
+
+    expect(sut.execute(userRegistrationData)).rejects.toThrow();
+  });
+
   it('should return the same user information after registration', async () => {
     const userRegistrationData = makeUserRegistrationData();
     const { sut } = makeSut();
@@ -178,6 +227,7 @@ describe('Register User Use Case', () => {
     const userRegistrationData = makeUserRegistrationData();
     const sut = new RegisterUserUseCase(
       makeMailValidatorError(),
+      makePasswordValidatorError(),
       makeEncrypterError(),
       makeRegisterUserRepositoryError(),
       makeMailProviderError()
