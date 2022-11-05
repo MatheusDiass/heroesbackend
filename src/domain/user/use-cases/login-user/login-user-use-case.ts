@@ -2,12 +2,14 @@ import {
   User,
   LoginUser,
   IMailValidator,
+  IPasswordValidator,
   IFindUserByEmailRepository,
 } from '../../';
 
 export class LoginUserUseCase {
   constructor(
     private readonly mailValidator: IMailValidator,
+    private readonly passwordValidator: IPasswordValidator,
     private readonly findUserByEmailRepository: IFindUserByEmailRepository
   ) {}
 
@@ -26,6 +28,13 @@ export class LoginUserUseCase {
 
     //Check if the password has not been provided
     if (password.trim() === '') {
+      throw new Error();
+    }
+
+    //Check if the password is valid
+    const isPasswordValid = this.passwordValidator.validatePassword(password);
+
+    if (!isPasswordValid) {
       throw new Error();
     }
 

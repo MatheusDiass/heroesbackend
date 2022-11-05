@@ -9,6 +9,7 @@ type LoginUser = {
 class LoginUserUseCase {
   constructor(
     private readonly mailValidator: MailValidator,
+    private readonly passwordValidator: PasswordValidator,
     private readonly findUserByEmailRepository: IFindUserByEmailRepository
   ) {}
 
@@ -24,6 +25,12 @@ class LoginUserUseCase {
     }
 
     if (password.trim() === '') {
+      throw new Error();
+    }
+
+    const isPasswordValid = this.passwordValidator.validatePassword(password);
+
+    if (!isPasswordValid) {
       throw new Error();
     }
 
@@ -53,7 +60,7 @@ class FindUserByEmailRepository implements IFindUserByEmailRepository {
       lastName: 'Test',
       nickname: '',
       email: 'test1@test.com',
-      password: 'test1@@test1',
+      password: 'Test1@@test1',
       bio: '',
     },
     {
@@ -99,17 +106,35 @@ class MailValidator {
   }
 }
 
+class PasswordValidator {
+  validatePassword(password: string): boolean {
+    const regexp =
+      /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/;
+
+    if (password.match(regexp)) {
+      return true;
+    }
+
+    return false;
+  }
+}
+
 const makeLoginData = () => {
   return {
     mail: 'test1@test.com',
-    password: 'test1@@test1',
+    password: 'Test1@@test1',
   };
 };
 
 const makeSut = () => {
   const mailValidator = new MailValidator();
+  const passwordValidator = new PasswordValidator();
   const findUserByEmailRepository = new FindUserByEmailRepository();
-  const sut = new LoginUserUseCase(mailValidator, findUserByEmailRepository);
+  const sut = new LoginUserUseCase(
+    mailValidator,
+    passwordValidator,
+    findUserByEmailRepository
+  );
 
   return sut;
 };
@@ -135,6 +160,16 @@ const makeMailValidatorError = () => {
   }
 
   return new MailValidator();
+};
+
+const makePasswordValidatorError = () => {
+  class PasswordValidator {
+    validatePassword(): boolean {
+      throw new Error();
+    }
+  }
+
+  return new PasswordValidator();
 };
 
 describe('Login User Use Case', () => {
@@ -164,6 +199,14 @@ describe('Login User Use Case', () => {
     expect(sut.execute(loginData)).rejects.toThrow();
   });
 
+  it('should throw error if password is incorrect format', async () => {
+    const loginData = makeLoginData();
+    loginData.password = 'a';
+    const sut = makeSut();
+
+    expect(sut.execute(loginData)).rejects.toThrow();
+  });
+
   it('should throw error if user does not exist', () => {
     const loginData = makeLoginData();
     loginData.mail = 'test@test.com';
@@ -175,7 +218,7 @@ describe('Login User Use Case', () => {
 
   it('should throw error if user password is incorrect', () => {
     const loginData = makeLoginData();
-    loginData.password = 'test@@test2';
+    loginData.password = 'Test@@test2';
 
     const sut = makeSut();
 
@@ -187,6 +230,7 @@ describe('Login User Use Case', () => {
 
     const sut = new LoginUserUseCase(
       makeMailValidatorError(),
+      makePasswordValidatorError(),
       makeFindUserByEmailRepositoryError()
     );
 
