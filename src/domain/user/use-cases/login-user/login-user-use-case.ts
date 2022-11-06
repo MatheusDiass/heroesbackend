@@ -5,11 +5,13 @@ import {
   IPasswordValidator,
   IFindUserByEmailRepository,
 } from '../../';
+import { IEncrypter } from '../../../../utils';
 
 export class LoginUserUseCase {
   constructor(
     private readonly mailValidator: IMailValidator,
     private readonly passwordValidator: IPasswordValidator,
+    private readonly encrypter: IEncrypter,
     private readonly findUserByEmailRepository: IFindUserByEmailRepository
   ) {}
 
@@ -47,7 +49,9 @@ export class LoginUserUseCase {
     }
 
     //Check if the passwords are different
-    if (user.getPassword !== password) {
+    const passwordHash = this.encrypter.createHash(password);
+
+    if (user.getPassword !== passwordHash) {
       throw new Error();
     }
 

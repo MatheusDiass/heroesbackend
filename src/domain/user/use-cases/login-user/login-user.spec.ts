@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, test } from 'vitest';
 import { User } from '../../';
 
 type LoginUser = {
@@ -10,6 +10,7 @@ class LoginUserUseCase {
   constructor(
     private readonly mailValidator: MailValidator,
     private readonly passwordValidator: PasswordValidator,
+    private readonly encrypter: EncrypterSpy,
     private readonly findUserByEmailRepository: IFindUserByEmailRepository
   ) {}
 
@@ -40,7 +41,9 @@ class LoginUserUseCase {
       throw new Error();
     }
 
-    if (user.getPassword !== password) {
+    const passwordHash = this.encrypter.createHash(password);
+
+    if (user.getPassword !== passwordHash) {
       throw new Error();
     }
 
@@ -60,7 +63,7 @@ class FindUserByEmailRepository implements IFindUserByEmailRepository {
       lastName: 'Test',
       nickname: '',
       email: 'test1@test.com',
-      password: 'Test1@@test1',
+      password: 'Test1@@test1hash',
       bio: '',
     },
     {
@@ -69,7 +72,7 @@ class FindUserByEmailRepository implements IFindUserByEmailRepository {
       lastName: 'Test',
       nickname: '',
       email: 'test2@test.com',
-      password: 'test2@@test2',
+      password: 'test2@@test2hash',
       bio: '',
     },
   ];
@@ -119,6 +122,15 @@ class PasswordValidator {
   }
 }
 
+class EncrypterSpy {
+  public isEncrypted = false;
+
+  createHash(text: string): string {
+    this.isEncrypted = true;
+    return `${text}hash`;
+  }
+}
+
 const makeLoginData = () => {
   return {
     mail: 'test1@test.com',
@@ -129,14 +141,19 @@ const makeLoginData = () => {
 const makeSut = () => {
   const mailValidator = new MailValidator();
   const passwordValidator = new PasswordValidator();
+  const encrypter = new EncrypterSpy();
   const findUserByEmailRepository = new FindUserByEmailRepository();
   const sut = new LoginUserUseCase(
     mailValidator,
     passwordValidator,
+    encrypter,
     findUserByEmailRepository
   );
 
-  return sut;
+  return {
+    sut,
+    encrypter,
+  };
 };
 
 const makeFindUserByEmailRepositoryError = () => {
@@ -172,12 +189,25 @@ const makePasswordValidatorError = () => {
   return new PasswordValidator();
 };
 
+const makeEncrypterError = () => {
+  class EncrypterSpy {
+    public isEncrypted = false;
+
+    createHash(): string {
+      this.isEncrypted = false;
+      throw new Error();
+    }
+  }
+
+  return new EncrypterSpy();
+};
+
 describe('Login User Use Case', () => {
   it('should throw error if no email is provided', () => {
     const loginData = makeLoginData();
     loginData.mail = '';
 
-    const sut = makeSut();
+    const { sut } = makeSut();
 
     expect(sut.execute(loginData)).rejects.toThrow();
   });
@@ -185,7 +215,7 @@ describe('Login User Use Case', () => {
   it('should throw error if email is incorrect format', async () => {
     const loginData = makeLoginData();
     loginData.mail = 'test1@.com';
-    const sut = makeSut();
+    const { sut } = makeSut();
 
     expect(sut.execute(loginData)).rejects.toThrow();
   });
@@ -194,7 +224,7 @@ describe('Login User Use Case', () => {
     const loginData = makeLoginData();
     loginData.password = '';
 
-    const sut = makeSut();
+    const { sut } = makeSut();
 
     expect(sut.execute(loginData)).rejects.toThrow();
   });
@@ -202,7 +232,7 @@ describe('Login User Use Case', () => {
   it('should throw error if password is incorrect format', async () => {
     const loginData = makeLoginData();
     loginData.password = 'a';
-    const sut = makeSut();
+    const { sut } = makeSut();
 
     expect(sut.execute(loginData)).rejects.toThrow();
   });
@@ -211,7 +241,7 @@ describe('Login User Use Case', () => {
     const loginData = makeLoginData();
     loginData.mail = 'test@test.com';
 
-    const sut = makeSut();
+    const { sut } = makeSut();
 
     expect(sut.execute(loginData)).rejects.toThrow();
   });
@@ -220,9 +250,18 @@ describe('Login User Use Case', () => {
     const loginData = makeLoginData();
     loginData.password = 'Test@@test2';
 
-    const sut = makeSut();
+    const { sut } = makeSut();
 
     expect(sut.execute(loginData)).rejects.toThrow();
+  });
+
+  test('if password is encrypted', async () => {
+    const loginData = makeLoginData();
+
+    const { sut, encrypter } = makeSut();
+    await sut.execute(loginData);
+
+    expect(encrypter.isEncrypted).toEqual(true);
   });
 
   it('should throw error if any dependency throws', () => {
@@ -231,6 +270,7 @@ describe('Login User Use Case', () => {
     const sut = new LoginUserUseCase(
       makeMailValidatorError(),
       makePasswordValidatorError(),
+      makeEncrypterError(),
       makeFindUserByEmailRepositoryError()
     );
 
