@@ -10,6 +10,7 @@ describe('User', () => {
     email: 'Test@Test.com',
     password: 'Test@@1',
     bio: 'My bio',
+    confirmationCode: 875611,
   };
 
   it('should return an error when user name is empty', () => {
@@ -58,6 +59,12 @@ describe('User', () => {
     const user = new User(userProps);
 
     expect(user.getPassword).toEqual(userProps.password);
+  });
+
+  it('should return the same confirmation code informed in the creation of the user class instance', () => {
+    const user = new User(userProps);
+
+    expect(user.getConfirmationCode).toEqual(userProps.confirmationCode);
   });
 
   it('should assign the password in the correct property', () => {
