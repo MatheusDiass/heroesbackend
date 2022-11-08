@@ -106,6 +106,26 @@ const makeSut = () => {
   return sut;
 };
 
+const makeFetchUserByIdRepositoryWithError = () => {
+  class FetchUserByIdRepositorySpy {
+    fetchUserById(): Promise<User | undefined> {
+      throw new Error();
+    }
+  }
+
+  return new FetchUserByIdRepositorySpy();
+};
+
+const makeConfirmRegistrationRepositoryWithError = () => {
+  class ConfirmRegistrationRepositorySpy {
+    confirmRegistration(): Promise<void> {
+      throw new Error();
+    }
+  }
+
+  return new ConfirmRegistrationRepositorySpy();
+};
+
 describe('Confirm Registration Use Case', () => {
   it('should throw an error if no user id is provided', () => {
     const sut = makeSut();
@@ -140,6 +160,17 @@ describe('Confirm Registration Use Case', () => {
 
     expect(
       sut.execute({ userId: 3, confirmationCode: 875612 })
+    ).rejects.toThrow();
+  });
+
+  it('should throw error if any dependency throws', () => {
+    const sut = new ConfirmRegistrationUseCase(
+      makeFetchUserByIdRepositoryWithError(),
+      makeConfirmRegistrationRepositoryWithError()
+    );
+
+    expect(
+      sut.execute({ userId: 3, confirmationCode: 875611 })
     ).rejects.toThrow();
   });
 });
