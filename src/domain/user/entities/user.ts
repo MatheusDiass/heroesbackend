@@ -36,6 +36,10 @@ export class User {
     return this.user.name;
   }
 
+  get getNickname() {
+    return this.user.nickname;
+  }
+
   get getEmail() {
     return this.user.email;
   }

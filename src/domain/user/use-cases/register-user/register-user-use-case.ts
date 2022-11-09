@@ -4,6 +4,7 @@ import {
   IRegisterUserRepository,
   IMailValidator,
   IPasswordValidator,
+  IFetchUserByNicknameRepository,
 } from '../../';
 
 export class RegisterUserUseCase {
@@ -11,12 +12,15 @@ export class RegisterUserUseCase {
     private readonly mailValidator: IMailValidator,
     private readonly passwordValidator: IPasswordValidator,
     private readonly encrypter: IEncrypter,
+    private readonly fetchUserByNicknameRepository: IFetchUserByNicknameRepository,
     private readonly registerUserRepository: IRegisterUserRepository,
     private readonly mailProvider: IMailProvider,
     private readonly codeGenerator: ICodeGenerator
   ) {}
 
   async execute(user: User): Promise<User> {
+    let nicknameExists: User | undefined;
+
     //Check if the mail is valid
     const isMailValid = this.mailValidator.validateMail(user.getEmail);
 
@@ -31,6 +35,18 @@ export class RegisterUserUseCase {
 
     if (!isPasswordValid) {
       throw new Error();
+    }
+
+    //Check if the nickname already exists
+    if (user.getNickname) {
+      nicknameExists =
+        await this.fetchUserByNicknameRepository.fetchUserByNickname(
+          user.getNickname
+        );
+
+      if (nicknameExists) {
+        throw new Error();
+      }
     }
 
     //Create password hash
