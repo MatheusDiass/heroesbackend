@@ -1,4 +1,4 @@
-type HeroProps = {
+export type HeroProps = {
   id?: number;
   name: string;
   description?: string;
