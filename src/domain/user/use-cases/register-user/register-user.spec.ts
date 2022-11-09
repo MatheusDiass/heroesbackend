@@ -7,11 +7,14 @@ class RegisterUserUseCase {
     private readonly mailValidator: MailValidator,
     private readonly passwordValidator: PasswordValidator,
     private readonly encrypter: EncrypterSpy,
+    private readonly fetchUserByNicknameRepository: IFetchUserByNicknameRepository,
     private readonly registerUserRepository: IRegisterUserRepository,
     private readonly mailProvider: MailProviderSpy
   ) {}
 
   async execute(user: User): Promise<User> {
+    let nicknameExists: User | undefined;
+
     const isMailValid = this.mailValidator.validateMail(user.getEmail);
 
     if (!isMailValid) {
@@ -26,8 +29,20 @@ class RegisterUserUseCase {
       throw new Error();
     }
 
+    if (user.getNickname) {
+      nicknameExists =
+        await this.fetchUserByNicknameRepository.fetchUserByNickname(
+          user.getNickname
+        );
+
+      if (nicknameExists) {
+        throw new Error();
+      }
+    }
+
     const hashPassword = this.encrypter.createHash(user.getPassword);
     user.setPassword = hashPassword;
+
     await this.registerUserRepository.registerUser(user);
     await this.mailProvider.sendEmail('Test');
 
@@ -41,6 +56,28 @@ interface IRegisterUserRepository {
 class RegisterUserRepositorySpy implements IRegisterUserRepository {
   async registerUser(user: User): Promise<User> {
     return user;
+  }
+}
+
+interface IFetchUserByNicknameRepository {
+  fetchUserByNickname(nickname: string): Promise<User | undefined>;
+}
+
+class FetchUserByNicknameRepositorySpy
+  implements IFetchUserByNicknameRepository
+{
+  async fetchUserByNickname(nickname: string): Promise<User | undefined> {
+    if (nickname === 'MrTest01') {
+      return new User({
+        name: 'Test',
+        lastName: 'Test',
+        nickname: 'MrTest01',
+        email: 'test@test.com',
+        password: 'Test@@test1',
+      });
+    }
+
+    return undefined;
   }
 }
 
@@ -104,12 +141,15 @@ const makeSut = function () {
   const emailValidator = new MailValidator();
   const passwordValidator = new PasswordValidator();
   const encrypter = new EncrypterSpy();
+  const fetchUserByNicknameRepositorySpy =
+    new FetchUserByNicknameRepositorySpy();
   const registerUserRepositorySpy = new RegisterUserRepositorySpy();
   const mailProviderSpy = new MailProviderSpy();
   const sut = new RegisterUserUseCase(
     emailValidator,
     passwordValidator,
     encrypter,
+    fetchUserByNicknameRepositorySpy,
     registerUserRepositorySpy,
     mailProviderSpy
   );
@@ -175,6 +215,16 @@ const makeMailProviderError = () => {
   return new MailProvider();
 };
 
+const makeFetchUserByNicknameRepositoryError = () => {
+  class FetchUserByNicknameRepositorySpy {
+    async fetchUserByNickname(): Promise<User> {
+      throw new Error();
+    }
+  }
+
+  return new FetchUserByNicknameRepositorySpy();
+};
+
 describe('Register User Use Case', () => {
   it('should throw error if email is incorrect format', async () => {
     const userRegistrationData = makeUserRegistrationData(
@@ -206,6 +256,21 @@ describe('Register User Use Case', () => {
     expect(sut.execute(userRegistrationData)).rejects.toThrow();
   });
 
+  it('should throw an error if the nickname already exists', () => {
+    const userRegistrationData = makeUserRegistrationData(
+      new User({
+        name: 'Test',
+        lastName: 'Test',
+        nickname: 'MrTest01',
+        email: 'test@test.com',
+        password: 'Test@@test1',
+      })
+    );
+    const { sut } = makeSut();
+
+    expect(sut.execute(userRegistrationData)).rejects.toThrow();
+  });
+
   it('should return the same user information after registration', async () => {
     const userRegistrationData = makeUserRegistrationData();
     const { sut } = makeSut();
@@ -229,6 +294,7 @@ describe('Register User Use Case', () => {
       makeMailValidatorError(),
       makePasswordValidatorError(),
       makeEncrypterError(),
+      makeFetchUserByNicknameRepositoryError(),
       makeRegisterUserRepositoryError(),
       makeMailProviderError()
     );

@@ -48,10 +48,22 @@ describe('User', () => {
     }).toThrow();
   });
 
-  it('should return the same password informed in the creation of the user class instance', () => {
+  it('should return the same name informed in the creation of the user class instance', () => {
     const user = new User(userProps);
 
-    expect(user.getPassword).toEqual(userProps.password);
+    expect(user.getName).toEqual(userProps.name);
+  });
+
+  it('should return the same nickname informed in the creation of the user class instance', () => {
+    const user = new User(userProps);
+
+    expect(user.getNickname).toEqual(userProps.nickname);
+  });
+
+  it('should return the same email informed in the creation of the user class instance', () => {
+    const user = new User(userProps);
+
+    expect(user.getEmail).toEqual(userProps.email);
   });
 
   it('should return the same password informed in the creation of the user class instance', () => {
