@@ -6,6 +6,7 @@ type UserProps = {
   email: string;
   password: string;
   bio?: string;
+  confirmationCode?: number;
 };
 
 export class User {
@@ -45,6 +46,10 @@ export class User {
 
   get getPassword() {
     return this.user.password;
+  }
+
+  get getConfirmationCode() {
+    return this.user.confirmationCode;
   }
 
   set setPassword(password: string) {
