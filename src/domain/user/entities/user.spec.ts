@@ -49,10 +49,22 @@ describe('User', () => {
     }).toThrow();
   });
 
+  it('should return the same id informed in the creation of the user class instance', () => {
+    const user = new User(userProps);
+
+    expect(user.getId).toEqual(userProps.id);
+  });
+
   it('should return the same name informed in the creation of the user class instance', () => {
     const user = new User(userProps);
 
     expect(user.getName).toEqual(userProps.name);
+  });
+
+  it('should return the same last name informed in the creation of the user class instance', () => {
+    const user = new User(userProps);
+
+    expect(user.getLastName).toEqual(userProps.lastName);
   });
 
   it('should return the same nickname informed in the creation of the user class instance', () => {
@@ -71,6 +83,12 @@ describe('User', () => {
     const user = new User(userProps);
 
     expect(user.getPassword).toEqual(userProps.password);
+  });
+
+  it('should return the same bio informed in the creation of the user class instance', () => {
+    const user = new User(userProps);
+
+    expect(user.getBio).toEqual(userProps.bio);
   });
 
   it('should return the same confirmation code informed in the creation of the user class instance', () => {

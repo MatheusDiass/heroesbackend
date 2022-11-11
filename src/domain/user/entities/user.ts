@@ -32,8 +32,16 @@ export class User {
     this.user = props;
   }
 
+  get getId() {
+    return this.user.id;
+  }
+
   get getName() {
     return this.user.name;
+  }
+
+  get getLastName() {
+    return this.user.lastName;
   }
 
   get getNickname() {
@@ -46,6 +54,10 @@ export class User {
 
   get getPassword() {
     return this.user.password;
+  }
+
+  get getBio() {
+    return this.user.bio;
   }
 
   get getConfirmationCode() {
