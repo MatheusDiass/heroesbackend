@@ -1,4 +1,4 @@
-import { describe, expect, it, test } from 'vitest';
+import { describe, expect, it /*, test*/ } from 'vitest';
 import { User } from '../../';
 
 type LoginUser = {
@@ -41,9 +41,12 @@ class LoginUserUseCase {
       throw new Error();
     }
 
-    const passwordHash = this.encrypter.createHash(password);
+    const comparisonResult = await this.encrypter.compareHash(
+      password,
+      user.getPassword
+    );
 
-    if (user.getPassword !== passwordHash) {
+    if (!comparisonResult) {
       throw new Error();
     }
 
@@ -123,11 +126,8 @@ class PasswordValidator {
 }
 
 class EncrypterSpy {
-  public isEncrypted = false;
-
-  createHash(text: string): string {
-    this.isEncrypted = true;
-    return `${text}hash`;
+  async compareHash(text: string, hash: string): Promise<boolean> {
+    return `${text}hash` === hash;
   }
 }
 
@@ -191,10 +191,7 @@ const makePasswordValidatorError = () => {
 
 const makeEncrypterError = () => {
   class EncrypterSpy {
-    public isEncrypted = false;
-
-    createHash(): string {
-      this.isEncrypted = false;
+    async compareHash(): Promise<boolean> {
       throw new Error();
     }
   }
@@ -253,15 +250,6 @@ describe('Login User Use Case', () => {
     const { sut } = makeSut();
 
     expect(sut.execute(loginData)).rejects.toThrow();
-  });
-
-  test('if password is encrypted', async () => {
-    const loginData = makeLoginData();
-
-    const { sut, encrypter } = makeSut();
-    await sut.execute(loginData);
-
-    expect(encrypter.isEncrypted).toEqual(true);
   });
 
   it('should throw error if any dependency throws', () => {
