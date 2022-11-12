@@ -49,9 +49,12 @@ export class LoginUserUseCase {
     }
 
     //Check if the passwords are different
-    const passwordHash = this.encrypter.createHash(password);
+    const comparisonResult = await this.encrypter.compareHash(
+      password,
+      user.getPassword
+    );
 
-    if (user.getPassword !== passwordHash) {
+    if (!comparisonResult) {
       throw new Error();
     }
 

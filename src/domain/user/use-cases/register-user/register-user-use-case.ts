@@ -50,7 +50,7 @@ export class RegisterUserUseCase {
     }
 
     //Create password hash
-    const hashPassword = this.encrypter.createHash(user.getPassword);
+    const hashPassword = await this.encrypter.createHash(user.getPassword);
     user.setPassword = hashPassword;
 
     //Register the user

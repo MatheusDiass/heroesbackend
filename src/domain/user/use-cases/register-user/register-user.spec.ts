@@ -40,7 +40,7 @@ class RegisterUserUseCase {
       }
     }
 
-    const hashPassword = this.encrypter.createHash(user.getPassword);
+    const hashPassword = await this.encrypter.createHash(user.getPassword);
     user.setPassword = hashPassword;
 
     await this.registerUserRepository.registerUser(user);
@@ -82,7 +82,7 @@ class FetchUserByNicknameRepositorySpy
 }
 
 class EncrypterSpy {
-  createHash(text: string): string {
+  async createHash(text: string): Promise<string> {
     return `${text}hash`;
   }
 }
@@ -172,7 +172,7 @@ const makeMailValidatorError = () => {
 
 const makeEncrypterError = () => {
   class EncrypterSpy {
-    createHash(): string {
+    async createHash(): Promise<string> {
       throw new Error();
     }
   }
