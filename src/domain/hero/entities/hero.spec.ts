@@ -39,32 +39,56 @@ describe('Hero', () => {
   });
 
   it('should return the same stories informed in the creation of the hero class instance', () => {
-    const user = new Hero(heroProps);
+    const hero = new Hero(heroProps);
 
-    expect(user.getStories).toEqual(heroProps.stories);
+    expect(hero.getStories).toEqual(heroProps.stories);
+  });
+
+  it('should return the same id informed in the creation of the hero class instance', () => {
+    const hero = new Hero(heroProps);
+
+    expect(hero.getId).toEqual(heroProps.id);
+  });
+
+  it('should return the same name informed in the creation of the hero class instance', () => {
+    const hero = new Hero(heroProps);
+
+    expect(hero.getName).toEqual(heroProps.name);
+  });
+
+  it('should return the same description informed in the creation of the hero class instance', () => {
+    const hero = new Hero(heroProps);
+
+    expect(hero.getDescription).toEqual(heroProps.description);
+  });
+
+  it('should return the same image name informed in the creation of the hero class instance', () => {
+    const hero = new Hero(heroProps);
+
+    expect(hero.getImage).toEqual(heroProps.image);
   });
 
   it('should return the same events informed in the creation of the hero class instance', () => {
-    const user = new Hero(heroProps);
+    const hero = new Hero(heroProps);
 
-    expect(user.getEvents).toEqual(heroProps.events);
+    expect(hero.getEvents).toEqual(heroProps.events);
   });
 
   it('should return an empty array if no stories exist', () => {
-    const user = new Hero({
+    const hero = new Hero({
       ...heroProps,
       stories: undefined,
     });
 
-    expect(user.getStories).toEqual([]);
+    expect(hero.getStories).toEqual([]);
   });
 
   it('should return an empty array if no events exist', () => {
-    const user = new Hero({
+    const hero = new Hero({
       ...heroProps,
       events: undefined,
     });
 
-    expect(user.getEvents).toEqual([]);
+    expect(hero.getEvents).toEqual([]);
   });
 });
