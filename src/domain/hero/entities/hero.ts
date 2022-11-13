@@ -36,6 +36,22 @@ export class Hero {
     this.hero = props;
   }
 
+  get getId(): number | undefined {
+    return this.hero.id;
+  }
+
+  get getName(): string | undefined {
+    return this.hero.name;
+  }
+
+  get getDescription(): string | undefined {
+    return this.hero.description;
+  }
+
+  get getImage(): string | undefined {
+    return this.hero.image;
+  }
+
   get getStories(): Story[] | undefined {
     return this.hero.stories;
   }
