@@ -1,5 +1,5 @@
-import { Hero } from '../entities/hero';
+import { Hero } from '../../';
 
 export interface IFetchHeroByIdRepository {
-  fetchHeroById(id: number): Promise<Hero>;
+  fetchHeroById(id: number): Promise<Hero | undefined>;
 }
