@@ -1,43 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import {
-  Filter,
-  Hero,
-  IFetchHeroByIdRepository,
-  IFetchHeroesRepository,
-} from '../../../../domain/hero';
-import { HeroAdapter } from '../../adapters';
-import { heroesData } from './heroes-mock';
-
-class HeroRepositoryInMemory
-  implements IFetchHeroesRepository, IFetchHeroByIdRepository
-{
-  async fetchHeroes(filter: Filter): Promise<Hero[]> {
-    let heroes: any[] = [];
-    const startWith: string = filter.startWith || '';
-    const limit: number = filter.limit || 0;
-    const offset: number = filter.offset || 0;
-
-    heroes = heroesData.slice(offset);
-
-    heroes = heroes.filter((hero) => hero.name.startsWith(startWith));
-
-    if (limit) {
-      heroes = heroes.slice(0, limit);
-    }
-
-    return heroes.map((hero) => HeroAdapter.fromJson(hero));
-  }
-
-  async fetchHeroById(id: number): Promise<Hero | undefined> {
-    const hero = heroesData.find((hero) => hero.id === id);
-
-    if (!hero) {
-      return undefined;
-    }
-
-    return HeroAdapter.fromJson(hero);
-  }
-}
+import { Hero } from '../../../../domain/hero';
+import { HeroRepositoryInMemory } from './hero-repository-in-memory';
 
 describe('Hero Repository In-Memory', () => {
   it('should return heroes', async () => {
@@ -50,7 +13,7 @@ describe('Hero Repository In-Memory', () => {
   it('should return an empty array if there are no heroes whose name starts with "American"', async () => {
     const sut = new HeroRepositoryInMemory();
     const heroes = await sut.fetchHeroes({
-      startWith: 'American',
+      nameStartsWith: 'American',
     });
 
     expect(heroes).toHaveLength(0);
@@ -77,7 +40,7 @@ describe('Hero Repository In-Memory', () => {
   it('should return a hero using all filter properties', async () => {
     const sut = new HeroRepositoryInMemory();
     const heroes = await sut.fetchHeroes({
-      startWith: 'Iron',
+      nameStartsWith: 'Iron',
       offset: 2,
       limit: 1,
     });
