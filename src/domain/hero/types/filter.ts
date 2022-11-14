@@ -1,5 +1,5 @@
 export type Filter = {
-  startWith?: string;
+  nameStartsWith?: string;
   limit?: number;
   offset?: number;
 };
