@@ -5,7 +5,7 @@ import {
   IFindUserByEmailRepository,
   IRegisterUserRepository,
   User,
-} from '../../../domain/user';
+} from '../../../../domain/user';
 import { UserAdapter } from '../../adapters';
 
 export class UserRepositoryInMemory

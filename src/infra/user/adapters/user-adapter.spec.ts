@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { User } from '../../domain/user';
+import { User } from '../../../domain/user';
 import { UserAdapter } from './user-adapter';
 
 describe('User Adapter', () => {

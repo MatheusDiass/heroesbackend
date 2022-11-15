@@ -1,4 +1,4 @@
-import { User } from '../../domain/user';
+import { User } from '../../../domain/user';
 
 export abstract class UserAdapter {
   //Maps json to a user entity
