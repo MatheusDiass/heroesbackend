@@ -2,8 +2,8 @@ import { describe, expect, it /*, test*/ } from 'vitest';
 import { User } from '../../';
 
 type LoginUser = {
-  mail: string;
-  password: string;
+  email?: string;
+  password?: string;
 };
 
 class LoginUserUseCase {
@@ -14,14 +14,22 @@ class LoginUserUseCase {
     private readonly findUserByEmailRepository: IFindUserByEmailRepository
   ) {}
 
-  async execute({ mail, password }: LoginUser): Promise<User> {
-    if (mail.trim() === '') {
+  async execute({ email, password }: LoginUser): Promise<User> {
+    if (email === undefined) {
       throw new Error();
     }
 
-    const isMailValid = this.mailValidator.validateMail(mail);
+    if (email.trim() === '') {
+      throw new Error();
+    }
+
+    const isMailValid = this.mailValidator.validateMail(email);
 
     if (!isMailValid) {
+      throw new Error();
+    }
+
+    if (password === undefined) {
       throw new Error();
     }
 
@@ -35,7 +43,7 @@ class LoginUserUseCase {
       throw new Error();
     }
 
-    const user = await this.findUserByEmailRepository.findUserByEmail(mail);
+    const user = await this.findUserByEmailRepository.findUserByEmail(email);
 
     if (!user) {
       throw new Error();
@@ -133,7 +141,7 @@ class EncrypterSpy {
 
 const makeLoginData = () => {
   return {
-    mail: 'test1@test.com',
+    email: 'test1@test.com',
     password: 'Test1@@test1',
   };
 };
@@ -201,8 +209,18 @@ const makeEncrypterError = () => {
 
 describe('Login User Use Case', () => {
   it('should throw error if no email is provided', () => {
+    const loginData = {
+      password: 'Test1@@test1',
+    };
+
+    const { sut } = makeSut();
+
+    expect(sut.execute(loginData)).rejects.toThrow();
+  });
+
+  it('should throw error if email is empty', () => {
     const loginData = makeLoginData();
-    loginData.mail = '';
+    loginData.email = '';
 
     const { sut } = makeSut();
 
@@ -211,13 +229,23 @@ describe('Login User Use Case', () => {
 
   it('should throw error if email is incorrect format', async () => {
     const loginData = makeLoginData();
-    loginData.mail = 'test1@.com';
+    loginData.email = 'test1@.com';
     const { sut } = makeSut();
 
     expect(sut.execute(loginData)).rejects.toThrow();
   });
 
   it('should throw error if no password is provided', () => {
+    const loginData = {
+      email: 'test1@test.com',
+    };
+
+    const { sut } = makeSut();
+
+    expect(sut.execute(loginData)).rejects.toThrow();
+  });
+
+  it('should throw error if no password is empty', () => {
     const loginData = makeLoginData();
     loginData.password = '';
 
@@ -236,7 +264,7 @@ describe('Login User Use Case', () => {
 
   it('should throw error if user does not exist', () => {
     const loginData = makeLoginData();
-    loginData.mail = 'test@test.com';
+    loginData.email = 'test@test.com';
 
     const { sut } = makeSut();
 

@@ -16,7 +16,12 @@ export class LoginUserUseCase {
   ) {}
 
   async execute({ email, password }: LoginUser): Promise<User> {
-    //Check if the mail has not been provided
+    //Check if the email has not been provided
+    if (email === undefined) {
+      throw new Error();
+    }
+
+    //Check if the email is empty
     if (email.trim() === '') {
       throw new Error();
     }
@@ -29,6 +34,11 @@ export class LoginUserUseCase {
     }
 
     //Check if the password has not been provided
+    if (password === undefined) {
+      throw new Error();
+    }
+
+    //Check if the password is empty
     if (password.trim() === '') {
       throw new Error();
     }
