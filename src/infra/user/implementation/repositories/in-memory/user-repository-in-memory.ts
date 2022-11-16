@@ -5,8 +5,8 @@ import {
   IFindUserByEmailRepository,
   IRegisterUserRepository,
   User,
-} from '../../../../domain/user';
-import { UserAdapter } from '../../adapters';
+} from '../../../../../domain/user';
+import { UserAdapter } from '../../../adapters';
 
 export class UserRepositoryInMemory
   implements

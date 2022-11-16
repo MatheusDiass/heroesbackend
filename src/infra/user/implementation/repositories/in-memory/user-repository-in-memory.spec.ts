@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { User } from '../../../../domain/user';
+import { User } from '../../../../../domain/user';
 import { UserRepositoryInMemory } from './user-repository-in-memory';
 
 const makeUserRegistrationData = () => {
