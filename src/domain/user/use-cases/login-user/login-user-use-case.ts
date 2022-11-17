@@ -6,6 +6,14 @@ import {
   IFindUserByEmailRepository,
 } from '../../';
 import { IEncrypter } from '../../../../utils';
+import {
+  MissingParameterError,
+  EmptyParameterError,
+  UserNotFoundError,
+  IncorrectEmailFormatError,
+  IncorrectPasswordFormatError,
+  IncorrectPasswordError,
+} from '../../../errors';
 
 export class LoginUserUseCase {
   constructor(
@@ -18,36 +26,36 @@ export class LoginUserUseCase {
   async execute({ email, password }: LoginUser): Promise<User> {
     //Check if the email has not been provided
     if (email === undefined) {
-      throw new Error();
+      throw new MissingParameterError('email');
     }
 
     //Check if the email is empty
     if (email.trim() === '') {
-      throw new Error();
+      throw new EmptyParameterError('email');
     }
 
     //Check if the mail is valid
     const isMailValid = this.mailValidator.validateMail(email);
 
     if (!isMailValid) {
-      throw new Error();
+      throw new IncorrectEmailFormatError();
     }
 
     //Check if the password has not been provided
     if (password === undefined) {
-      throw new Error();
+      throw new MissingParameterError('password');
     }
 
     //Check if the password is empty
     if (password.trim() === '') {
-      throw new Error();
+      throw new EmptyParameterError('password');
     }
 
     //Check if the password is valid
     const isPasswordValid = this.passwordValidator.validatePassword(password);
 
     if (!isPasswordValid) {
-      throw new Error();
+      throw new IncorrectPasswordFormatError();
     }
 
     //Fetch user
@@ -55,7 +63,7 @@ export class LoginUserUseCase {
 
     //Check if the user does not exist
     if (!user) {
-      throw new Error();
+      throw new UserNotFoundError();
     }
 
     //Check if the passwords are different
@@ -65,7 +73,7 @@ export class LoginUserUseCase {
     );
 
     if (!comparisonResult) {
-      throw new Error();
+      throw new IncorrectPasswordError();
     }
 
     return user;
