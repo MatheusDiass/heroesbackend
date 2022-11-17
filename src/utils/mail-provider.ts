@@ -3,7 +3,7 @@ type Address = {
   email: string;
 };
 
-type Message = {
+export type Message = {
   to: Address;
   from: Address;
   subject: string;

@@ -6,6 +6,11 @@ import {
   IPasswordValidator,
   IFetchUserByNicknameRepository,
 } from '../../';
+import {
+  IncorrectEmailFormatError,
+  IncorrectPasswordFormatError,
+  NicknameAlreadyExistsError,
+} from '../../../errors';
 
 export class RegisterUserUseCase {
   constructor(
@@ -25,7 +30,7 @@ export class RegisterUserUseCase {
     const isMailValid = this.mailValidator.validateMail(user.getEmail);
 
     if (!isMailValid) {
-      throw new Error();
+      throw new IncorrectEmailFormatError();
     }
 
     //Check if the password is valid
@@ -34,7 +39,7 @@ export class RegisterUserUseCase {
     );
 
     if (!isPasswordValid) {
-      throw new Error();
+      throw new IncorrectPasswordFormatError();
     }
 
     //Check if the nickname already exists
@@ -45,7 +50,7 @@ export class RegisterUserUseCase {
         );
 
       if (nicknameExists) {
-        throw new Error();
+        throw new NicknameAlreadyExistsError();
       }
     }
 

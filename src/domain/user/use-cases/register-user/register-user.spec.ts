@@ -1,61 +1,22 @@
 import { describe, expect, it } from 'vitest';
 
 import { User } from '../../';
-
-class RegisterUserUseCase {
-  constructor(
-    private readonly mailValidator: MailValidator,
-    private readonly passwordValidator: PasswordValidator,
-    private readonly encrypter: EncrypterSpy,
-    private readonly fetchUserByNicknameRepository: IFetchUserByNicknameRepository,
-    private readonly registerUserRepository: IRegisterUserRepository,
-    private readonly mailProvider: MailProviderSpy
-  ) {}
-
-  async execute(user: User): Promise<User> {
-    let nicknameExists: User | undefined;
-
-    const isMailValid = this.mailValidator.validateMail(user.getEmail);
-
-    if (!isMailValid) {
-      throw new Error();
-    }
-
-    const isPasswordValid = this.passwordValidator.validatePassword(
-      user.getPassword
-    );
-
-    if (!isPasswordValid) {
-      throw new Error();
-    }
-
-    if (user.getNickname) {
-      nicknameExists =
-        await this.fetchUserByNicknameRepository.fetchUserByNickname(
-          user.getNickname
-        );
-
-      if (nicknameExists) {
-        throw new Error();
-      }
-    }
-
-    const hashPassword = await this.encrypter.createHash(user.getPassword);
-    user.setPassword = hashPassword;
-
-    await this.registerUserRepository.registerUser(user);
-    await this.mailProvider.sendEmail('Test');
-
-    return user;
-  }
-}
+import {
+  IncorrectEmailFormatError,
+  IncorrectPasswordFormatError,
+  NicknameAlreadyExistsError,
+} from '../../../errors';
+import { RegisterUserUseCase } from './register-user-use-case';
+import { Message } from '../../../../utils';
 
 interface IRegisterUserRepository {
-  registerUser(user: User): Promise<User>;
+  registerUser(user: User): Promise<void>;
 }
 class RegisterUserRepositorySpy implements IRegisterUserRepository {
-  async registerUser(user: User): Promise<User> {
-    return user;
+  private user = {};
+
+  async registerUser(user: User): Promise<void> {
+    this.user = user;
   }
 }
 
@@ -78,22 +39,6 @@ class FetchUserByNicknameRepositorySpy
     }
 
     return undefined;
-  }
-}
-
-class EncrypterSpy {
-  async createHash(text: string): Promise<string> {
-    return `${text}hash`;
-  }
-}
-
-class MailProviderSpy {
-  public emailSent = false;
-  public message = '';
-
-  async sendEmail(message: string): Promise<void> {
-    this.message = message;
-    this.emailSent = true;
   }
 }
 
@@ -123,6 +68,32 @@ class PasswordValidator {
   }
 }
 
+class EncrypterSpy {
+  async createHash(text: string): Promise<string> {
+    return `${text}hash`;
+  }
+
+  async compareHash(text: string, hash: string): Promise<boolean> {
+    return `${text}hash` === hash;
+  }
+}
+
+class MailProviderSpy {
+  public emailSent = false;
+  public message = {};
+
+  async sendMail(message: Message): Promise<void> {
+    this.message = message;
+    this.emailSent = true;
+  }
+}
+
+class CodeGenerator {
+  generateCode(): number {
+    return 111111;
+  }
+}
+
 const makeUserRegistrationData = (user?: User): User => {
   if (user) {
     return user;
@@ -145,13 +116,15 @@ const makeSut = function () {
     new FetchUserByNicknameRepositorySpy();
   const registerUserRepositorySpy = new RegisterUserRepositorySpy();
   const mailProviderSpy = new MailProviderSpy();
+  const codeGenerator = new CodeGenerator();
   const sut = new RegisterUserUseCase(
     emailValidator,
     passwordValidator,
     encrypter,
     fetchUserByNicknameRepositorySpy,
     registerUserRepositorySpy,
-    mailProviderSpy
+    mailProviderSpy,
+    codeGenerator
   );
 
   return {
@@ -170,16 +143,6 @@ const makeMailValidatorError = () => {
   return new MailValidator();
 };
 
-const makeEncrypterError = () => {
-  class EncrypterSpy {
-    async createHash(): Promise<string> {
-      throw new Error();
-    }
-  }
-
-  return new EncrypterSpy();
-};
-
 const makePasswordValidatorError = () => {
   class PasswordValidator {
     validatePassword(): boolean {
@@ -190,29 +153,18 @@ const makePasswordValidatorError = () => {
   return new PasswordValidator();
 };
 
-const makeRegisterUserRepositoryError = () => {
-  class RegisterUserRepository {
-    registerUser(): Promise<User> {
+const makeEncrypterError = () => {
+  class EncrypterSpy {
+    async createHash(): Promise<string> {
+      throw new Error();
+    }
+
+    async compareHash(): Promise<boolean> {
       throw new Error();
     }
   }
 
-  return new RegisterUserRepository();
-};
-
-const makeMailProviderError = () => {
-  class MailProvider {
-    public emailSent = false;
-    public message = '';
-
-    async sendEmail(message: string): Promise<void> {
-      this.message = message;
-      this.emailSent = false;
-      throw new Error();
-    }
-  }
-
-  return new MailProvider();
+  return new EncrypterSpy();
 };
 
 const makeFetchUserByNicknameRepositoryError = () => {
@@ -225,8 +177,43 @@ const makeFetchUserByNicknameRepositoryError = () => {
   return new FetchUserByNicknameRepositorySpy();
 };
 
+const makeRegisterUserRepositoryError = () => {
+  class RegisterUserRepository {
+    registerUser(): Promise<void> {
+      throw new Error();
+    }
+  }
+
+  return new RegisterUserRepository();
+};
+
+const makeMailProviderError = () => {
+  class MailProvider {
+    public emailSent = false;
+    public message = {};
+
+    async sendMail(message: Message): Promise<void> {
+      this.message = message;
+      this.emailSent = false;
+      throw new Error();
+    }
+  }
+
+  return new MailProvider();
+};
+
+const makeCodeGeneratorError = () => {
+  class CodeGenerator {
+    generateCode(): number {
+      throw new Error();
+    }
+  }
+
+  return new CodeGenerator();
+};
+
 describe('Register User Use Case', () => {
-  it('should throw error if email is incorrect format', async () => {
+  it('should throw IncorrectEmailFormatError type error if the email is in incorrect format', async () => {
     const userRegistrationData = makeUserRegistrationData(
       new User({
         name: 'Test',
@@ -236,12 +223,15 @@ describe('Register User Use Case', () => {
         password: 'test@@test',
       })
     );
+
     const { sut } = makeSut();
 
-    expect(sut.execute(userRegistrationData)).rejects.toThrow();
+    expect(sut.execute(userRegistrationData)).rejects.toBeInstanceOf(
+      IncorrectEmailFormatError
+    );
   });
 
-  it('should throw error if password is incorrect format', async () => {
+  it('should throw IncorrectPasswordFormatError type error if the password is in incorrect format', async () => {
     const userRegistrationData = makeUserRegistrationData(
       new User({
         name: 'Test',
@@ -253,10 +243,12 @@ describe('Register User Use Case', () => {
     );
     const { sut } = makeSut();
 
-    expect(sut.execute(userRegistrationData)).rejects.toThrow();
+    expect(sut.execute(userRegistrationData)).rejects.toBeInstanceOf(
+      IncorrectPasswordFormatError
+    );
   });
 
-  it('should throw an error if the nickname already exists', () => {
+  it('should throw NicknameAlreadyExistsError type error if the nickname already exists', () => {
     const userRegistrationData = makeUserRegistrationData(
       new User({
         name: 'Test',
@@ -268,7 +260,9 @@ describe('Register User Use Case', () => {
     );
     const { sut } = makeSut();
 
-    expect(sut.execute(userRegistrationData)).rejects.toThrow();
+    expect(sut.execute(userRegistrationData)).rejects.toBeInstanceOf(
+      NicknameAlreadyExistsError
+    );
   });
 
   it('should return the same user information after registration', async () => {
@@ -296,7 +290,8 @@ describe('Register User Use Case', () => {
       makeEncrypterError(),
       makeFetchUserByNicknameRepositoryError(),
       makeRegisterUserRepositoryError(),
-      makeMailProviderError()
+      makeMailProviderError(),
+      makeCodeGeneratorError()
     );
 
     expect(sut.execute(userRegistrationData)).rejects.toThrow();
