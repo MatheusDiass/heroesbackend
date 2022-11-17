@@ -16,10 +16,10 @@ export class LoginUserController implements Controller {
         statusCode: 200,
         body: user,
       };
-    } catch (err) {
+    } catch (err: any) {
       return {
         statusCode: 400,
-        body: '',
+        body: err?.message,
       };
     }
   }
