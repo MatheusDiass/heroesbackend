@@ -1,46 +1,53 @@
 import { describe, expect, it } from 'vitest';
+import {
+  IncorrectConfirmationCodeError,
+  MissingParameterError,
+  RegistrationAlreadyConfirmedError,
+  UserNotFoundError,
+} from '../../../errors';
 import { User } from '../../entities/user';
+import { ConfirmRegistrationUseCase } from './confirm-registration-use-case';
 
-type UserRegistrationConfirmation = {
-  userId: number;
-  confirmationCode: number;
-};
+// type UserRegistrationConfirmation = {
+//   userId: number;
+//   confirmationCode: number;
+// };
 
-class ConfirmRegistrationUseCase {
-  constructor(
-    private readonly fetchUserByIdRepository: IFetchUserByIdRepository,
-    private readonly confirmRegistrationRepository: IConfirmRegistrationRepository
-  ) {}
+// class ConfirmRegistrationUseCase {
+//   constructor(
+//     private readonly fetchUserByIdRepository: IFetchUserByIdRepository,
+//     private readonly confirmRegistrationRepository: IConfirmRegistrationRepository
+//   ) {}
 
-  async execute({
-    userId,
-    confirmationCode,
-  }: UserRegistrationConfirmation): Promise<void> {
-    if (!userId) {
-      throw new Error();
-    }
+//   async execute({
+//     userId,
+//     confirmationCode,
+//   }: UserRegistrationConfirmation): Promise<void> {
+//     if (!userId) {
+//       throw new Error();
+//     }
 
-    if (!confirmationCode) {
-      throw new Error();
-    }
+//     if (!confirmationCode) {
+//       throw new Error();
+//     }
 
-    const user = await this.fetchUserByIdRepository.fetchUserById(userId);
+//     const user = await this.fetchUserByIdRepository.fetchUserById(userId);
 
-    if (!user) {
-      throw new Error();
-    }
+//     if (!user) {
+//       throw new Error();
+//     }
 
-    if (!user.getConfirmationCode) {
-      throw new Error();
-    }
+//     if (!user.getConfirmationCode) {
+//       throw new Error();
+//     }
 
-    if (confirmationCode !== user.getConfirmationCode) {
-      throw new Error();
-    }
+//     if (confirmationCode !== user.getConfirmationCode) {
+//       throw new Error();
+//     }
 
-    await this.confirmRegistrationRepository.confirmRegistration(userId);
-  }
-}
+//     await this.confirmRegistrationRepository.confirmRegistration(userId);
+//   }
+// }
 
 interface IFetchUserByIdRepository {
   fetchUserById(id: number): Promise<User | undefined>;
@@ -127,40 +134,44 @@ const makeConfirmRegistrationRepositoryWithError = () => {
 };
 
 describe('Confirm Registration Use Case', () => {
-  it('should throw an error if no user id is provided', () => {
+  it('should throw MissingParameterError type error if no user id is provided', () => {
     const sut = makeSut();
 
-    expect(sut.execute({ userId: 0, confirmationCode: 0 })).rejects.toThrow();
+    expect(
+      sut.execute({ userId: 0, confirmationCode: 0 })
+    ).rejects.toBeInstanceOf(MissingParameterError);
   });
 
-  it('should throw an error if no confirmation code is provided', () => {
+  it('should throw MissingParameterError type error if no confirmation code is provided', () => {
     const sut = makeSut();
 
-    expect(sut.execute({ userId: 3, confirmationCode: 0 })).rejects.toThrow();
+    expect(
+      sut.execute({ userId: 3, confirmationCode: 0 })
+    ).rejects.toBeInstanceOf(MissingParameterError);
   });
 
-  it('should throw an error if the user does not exist', () => {
+  it('should throw UserNotFoundError type error if the user does not exist', () => {
     const sut = makeSut();
 
     expect(
       sut.execute({ userId: 1, confirmationCode: 875611 })
-    ).rejects.toThrow();
+    ).rejects.toBeInstanceOf(UserNotFoundError);
   });
 
-  it('should throw an error if the user has already confirmed the registration', () => {
+  it('should throw RegistrationAlreadyConfirmedError type error if the user has already confirmed the registration', () => {
     const sut = makeSut();
 
     expect(
       sut.execute({ userId: 2, confirmationCode: 875612 })
-    ).rejects.toThrow();
+    ).rejects.toBeInstanceOf(RegistrationAlreadyConfirmedError);
   });
 
-  it('should throw an error if the user confirmation code is different from the sent confirmation code', () => {
+  it('should throw IncorrectConfirmationCodeError type error if the user confirmation code is different from the sent confirmation code', () => {
     const sut = makeSut();
 
     expect(
       sut.execute({ userId: 3, confirmationCode: 875612 })
-    ).rejects.toThrow();
+    ).rejects.toBeInstanceOf(IncorrectConfirmationCodeError);
   });
 
   it('should throw error if any dependency throws', () => {
