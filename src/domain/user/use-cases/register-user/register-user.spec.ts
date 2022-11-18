@@ -12,6 +12,7 @@ import { Message } from '../../../../utils';
 interface IRegisterUserRepository {
   registerUser(user: User): Promise<void>;
 }
+
 class RegisterUserRepositorySpy implements IRegisterUserRepository {
   private user = {};
 

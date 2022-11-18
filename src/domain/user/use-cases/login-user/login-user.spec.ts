@@ -1,66 +1,14 @@
 import { describe, expect, it /*, test*/ } from 'vitest';
 import { User } from '../../';
-
-type LoginUser = {
-  email?: string;
-  password?: string;
-};
-
-class LoginUserUseCase {
-  constructor(
-    private readonly mailValidator: MailValidator,
-    private readonly passwordValidator: PasswordValidator,
-    private readonly encrypter: EncrypterSpy,
-    private readonly findUserByEmailRepository: IFindUserByEmailRepository
-  ) {}
-
-  async execute({ email, password }: LoginUser): Promise<User> {
-    if (email === undefined) {
-      throw new Error();
-    }
-
-    if (email.trim() === '') {
-      throw new Error();
-    }
-
-    const isMailValid = this.mailValidator.validateMail(email);
-
-    if (!isMailValid) {
-      throw new Error();
-    }
-
-    if (password === undefined) {
-      throw new Error();
-    }
-
-    if (password.trim() === '') {
-      throw new Error();
-    }
-
-    const isPasswordValid = this.passwordValidator.validatePassword(password);
-
-    if (!isPasswordValid) {
-      throw new Error();
-    }
-
-    const user = await this.findUserByEmailRepository.findUserByEmail(email);
-
-    if (!user) {
-      throw new Error();
-    }
-
-    const comparisonResult = await this.encrypter.compareHash(
-      password,
-      user.getPassword
-    );
-
-    if (!comparisonResult) {
-      throw new Error();
-    }
-
-    return user;
-  }
-}
+import { LoginUserUseCase } from './login-user-use-case';
+import {
+  EmptyParameterError,
+  IncorrectEmailFormatError,
+  IncorrectPasswordError,
+  IncorrectPasswordFormatError,
+  //MissingParameterError,
+  UserNotFoundError,
+} from '../../../errors';
 
 interface IFindUserByEmailRepository {
   findUserByEmail(email: string): Promise<User | undefined>;
@@ -134,6 +82,10 @@ class PasswordValidator {
 }
 
 class EncrypterSpy {
+  async createHash(text: string): Promise<string> {
+    return `${text}hash`;
+  }
+
   async compareHash(text: string, hash: string): Promise<boolean> {
     return `${text}hash` === hash;
   }
@@ -199,6 +151,10 @@ const makePasswordValidatorError = () => {
 
 const makeEncrypterError = () => {
   class EncrypterSpy {
+    async createHash(): Promise<string> {
+      throw new Error();
+    }
+
     async compareHash(): Promise<boolean> {
       throw new Error();
     }
@@ -208,76 +164,96 @@ const makeEncrypterError = () => {
 };
 
 describe('Login User Use Case', () => {
-  it('should throw error if no email is provided', () => {
-    const loginData = {
-      password: 'Test1@@test1',
-    };
+  /* Test commented to not display errors in the code 
+  because for this test it is necessary that the "LoginUser" type 
+  has the optional properties, to use this test make the LoginUser
+  properties optional */
 
-    const { sut } = makeSut();
+  // it('should throw MissingParameterError type error if no email is provided', () => {
+  //   const loginData = {
+  //     password: 'Test1@@test1',
+  //   };
 
-    expect(sut.execute(loginData)).rejects.toThrow();
-  });
+  //   const { sut } = makeSut();
 
-  it('should throw error if email is empty', () => {
+  //   expect(sut.execute(loginData)).rejects.toBeInstanceOf(
+  //     MissingParameterError
+  //   );
+  // });
+
+  it('should throw EmptyParameterError type error if email is empty', () => {
     const loginData = makeLoginData();
     loginData.email = '';
 
     const { sut } = makeSut();
 
-    expect(sut.execute(loginData)).rejects.toThrow();
+    expect(sut.execute(loginData)).rejects.toBeInstanceOf(EmptyParameterError);
   });
 
-  it('should throw error if email is incorrect format', async () => {
+  it('should throw IncorrectEmailFormatError type error if email is incorrect format', async () => {
     const loginData = makeLoginData();
     loginData.email = 'test1@.com';
     const { sut } = makeSut();
 
-    expect(sut.execute(loginData)).rejects.toThrow();
+    expect(sut.execute(loginData)).rejects.toBeInstanceOf(
+      IncorrectEmailFormatError
+    );
   });
 
-  it('should throw error if no password is provided', () => {
-    const loginData = {
-      email: 'test1@test.com',
-    };
+  /* Test commented to not display errors in the code 
+  because for this test it is necessary that the "LoginUser" type 
+  has the optional properties, to use this test make the LoginUser
+  properties optional */
 
-    const { sut } = makeSut();
+  // it('should throw MissingParameterError type error if no password is provided', () => {
+  //   const loginData = {
+  //     email: 'test1@test.com',
+  //   };
 
-    expect(sut.execute(loginData)).rejects.toThrow();
-  });
+  //   const { sut } = makeSut();
 
-  it('should throw error if no password is empty', () => {
+  //   expect(sut.execute(loginData)).rejects.toBeInstanceOf(
+  //     MissingParameterError
+  //   );
+  // });
+
+  it('should throw EmptyParameterError type error if password is empty', () => {
     const loginData = makeLoginData();
     loginData.password = '';
 
     const { sut } = makeSut();
 
-    expect(sut.execute(loginData)).rejects.toThrow();
+    expect(sut.execute(loginData)).rejects.toBeInstanceOf(EmptyParameterError);
   });
 
-  it('should throw error if password is incorrect format', async () => {
+  it('should throw IncorrectPasswordFormatError type error if password is incorrect format', async () => {
     const loginData = makeLoginData();
     loginData.password = 'a';
     const { sut } = makeSut();
 
-    expect(sut.execute(loginData)).rejects.toThrow();
+    expect(sut.execute(loginData)).rejects.toBeInstanceOf(
+      IncorrectPasswordFormatError
+    );
   });
 
-  it('should throw error if user does not exist', () => {
+  it('should throw UserNotFoundError type error if user does not exist', () => {
     const loginData = makeLoginData();
     loginData.email = 'test@test.com';
 
     const { sut } = makeSut();
 
-    expect(sut.execute(loginData)).rejects.toThrow();
+    expect(sut.execute(loginData)).rejects.toBeInstanceOf(UserNotFoundError);
   });
 
-  it('should throw error if user password is incorrect', () => {
+  it('should throw IncorrectPasswordError type error if user password is incorrect', () => {
     const loginData = makeLoginData();
     loginData.password = 'Test@@test2';
 
     const { sut } = makeSut();
 
-    expect(sut.execute(loginData)).rejects.toThrow();
+    expect(sut.execute(loginData)).rejects.toBeInstanceOf(
+      IncorrectPasswordError
+    );
   });
 
   it('should throw error if any dependency throws', () => {
