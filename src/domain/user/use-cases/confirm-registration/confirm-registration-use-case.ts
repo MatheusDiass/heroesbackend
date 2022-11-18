@@ -3,6 +3,12 @@ import {
   IFetchUserByIdRepository,
   RegistrationConfirmation,
 } from '../../';
+import {
+  IncorrectConfirmationCodeError,
+  MissingParameterError,
+  RegistrationAlreadyConfirmedError,
+  UserNotFoundError,
+} from '../../../errors';
 
 export class ConfirmRegistrationUseCase {
   constructor(
@@ -16,12 +22,12 @@ export class ConfirmRegistrationUseCase {
   }: RegistrationConfirmation): Promise<void> {
     //Check if the user id has not been provided
     if (!userId) {
-      throw new Error();
+      throw new MissingParameterError('userId');
     }
 
     //Check if the confirmation has not been provided
     if (!confirmationCode) {
-      throw new Error();
+      throw new MissingParameterError('confirmationCode');
     }
 
     //Fetch user
@@ -29,17 +35,17 @@ export class ConfirmRegistrationUseCase {
 
     //Check if the user not exists
     if (!user) {
-      throw new Error();
+      throw new UserNotFoundError();
     }
 
     //Check if the user has already confirmed registration
     if (!user.getConfirmationCode) {
-      throw new Error();
+      throw new RegistrationAlreadyConfirmedError();
     }
 
     //Check if the user confirmation code is the same as the one stored in the system
     if (confirmationCode !== user.getConfirmationCode) {
-      throw new Error();
+      throw new IncorrectConfirmationCodeError();
     }
 
     //Confirm user registration
