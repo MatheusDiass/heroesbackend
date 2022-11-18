@@ -8,47 +8,6 @@ import {
 import { User } from '../../entities/user';
 import { ConfirmRegistrationUseCase } from './confirm-registration-use-case';
 
-// type UserRegistrationConfirmation = {
-//   userId: number;
-//   confirmationCode: number;
-// };
-
-// class ConfirmRegistrationUseCase {
-//   constructor(
-//     private readonly fetchUserByIdRepository: IFetchUserByIdRepository,
-//     private readonly confirmRegistrationRepository: IConfirmRegistrationRepository
-//   ) {}
-
-//   async execute({
-//     userId,
-//     confirmationCode,
-//   }: UserRegistrationConfirmation): Promise<void> {
-//     if (!userId) {
-//       throw new Error();
-//     }
-
-//     if (!confirmationCode) {
-//       throw new Error();
-//     }
-
-//     const user = await this.fetchUserByIdRepository.fetchUserById(userId);
-
-//     if (!user) {
-//       throw new Error();
-//     }
-
-//     if (!user.getConfirmationCode) {
-//       throw new Error();
-//     }
-
-//     if (confirmationCode !== user.getConfirmationCode) {
-//       throw new Error();
-//     }
-
-//     await this.confirmRegistrationRepository.confirmRegistration(userId);
-//   }
-// }
-
 interface IFetchUserByIdRepository {
   fetchUserById(id: number): Promise<User | undefined>;
 }
