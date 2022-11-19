@@ -11,5 +11,5 @@ export type Message = {
 };
 
 export interface IMailProvider {
-  sendMail(message: Message): Promise<void>;
+  sendMail(message: Message): Promise<string>;
 }
