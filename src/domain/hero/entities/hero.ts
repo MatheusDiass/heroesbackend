@@ -18,7 +18,12 @@ type Event = {
 };
 
 export class Hero {
-  private hero: HeroProps;
+  private id?: number;
+  private name: string;
+  private description?: string;
+  private image?: string;
+  private stories?: Story[];
+  private events?: Event[];
 
   constructor(props: HeroProps) {
     if (props.name.trim() === '') {
@@ -33,30 +38,35 @@ export class Hero {
       props.events = [];
     }
 
-    this.hero = props;
+    this.id = props.id;
+    this.name = props.name;
+    this.description = props.description;
+    this.image = props.image;
+    this.stories = props.stories;
+    this.events = props.events;
   }
 
   get getId(): number | undefined {
-    return this.hero.id;
+    return this.id;
   }
 
   get getName(): string | undefined {
-    return this.hero.name;
+    return this.name;
   }
 
   get getDescription(): string | undefined {
-    return this.hero.description;
+    return this.description;
   }
 
   get getImage(): string | undefined {
-    return this.hero.image;
+    return this.image;
   }
 
   get getStories(): Story[] | undefined {
-    return this.hero.stories;
+    return this.stories;
   }
 
   get getEvents(): Event[] | undefined {
-    return this.hero.events;
+    return this.events;
   }
 }
