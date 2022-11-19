@@ -5,8 +5,8 @@ class FetchHeroesUseCase {
   constructor(private readonly fetchHeroesRepository: FetchHeroesRepository) {}
 
   async execute(filter: Filter): Promise<Hero[]> {
-    if (!filter.startWith) {
-      filter.startWith = '';
+    if (!filter.nameStartsWith) {
+      filter.nameStartsWith = '';
     }
 
     if (filter.limit && (filter.limit > 100 || filter.limit < 0)) {
@@ -33,7 +33,7 @@ class FetchHeroesRepository {
 }
 
 type Filter = {
-  startWith?: string;
+  nameStartsWith?: string;
   limit?: number;
   offset?: number;
 };
@@ -76,16 +76,16 @@ describe('Fetch Heroes Use Case', () => {
     expect(sut.execute(filter)).rejects.toThrow();
   });
 
-  test('if filter startWith property is empty if no value is passed', async () => {
+  test('if filter nameStartsWith property is empty if no value is passed', async () => {
     const sut = makeSut();
     const filter = {
-      startWith: undefined,
+      nameStartsWith: undefined,
       limit: 10,
       offset: 2,
     };
 
     await sut.execute(filter);
-    expect(filter.startWith).toEqual('');
+    expect(filter.nameStartsWith).toEqual('');
   });
 
   test('if filter limit property is 0 if no value is passed', async () => {

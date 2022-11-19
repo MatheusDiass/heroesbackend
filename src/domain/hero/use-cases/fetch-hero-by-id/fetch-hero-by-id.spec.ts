@@ -13,12 +13,20 @@ class FetchHeroByIdUseCase {
 
     const hero = await this.fetchHeroByIdRepository.fetchHeroById(id);
 
+    if (!hero) {
+      throw new Error();
+    }
+
     return hero;
   }
 }
 
 class FetchHeroByIdRepository {
-  async fetchHeroById(id: number): Promise<Hero> {
+  async fetchHeroById(id: number): Promise<Hero | undefined> {
+    if (id === 1) {
+      return undefined;
+    }
+
     return new Hero({
       id,
       name: 'Iron Man',
@@ -54,6 +62,13 @@ describe('Fetch Hero by Id Use Case', () => {
     const hero = await sut.execute(10);
 
     expect(hero).toBeInstanceOf(Hero);
+  });
+
+  it('should throw an error if hero does not exist', async () => {
+    const fetchHeroByIdRepository = new FetchHeroByIdRepository();
+    const sut = new FetchHeroByIdUseCase(fetchHeroByIdRepository);
+
+    expect(sut.execute(1)).rejects.toThrow();
   });
 
   it('should throw error if any dependency throws', () => {

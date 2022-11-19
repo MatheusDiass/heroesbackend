@@ -1,8 +1,15 @@
-import app from './main/server';
+import { setupApp } from './main/server';
 
 const port = 3000;
 
-app.listen(port, () => {
-  // eslint-disable-next-line no-console
-  console.log(`🚀 heroesbackend server is running at http://localhost:${port}`);
-});
+const start = async () => {
+  const app = await setupApp();
+  app.listen(port, () => {
+    // eslint-disable-next-line no-console
+    console.log(
+      `🚀 heroesbackend server is running at http://localhost:${port}`
+    );
+  });
+};
+
+start();

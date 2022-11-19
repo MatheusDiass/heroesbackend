@@ -1,12 +1,23 @@
-import express from 'express';
+import express, { Express } from 'express';
 import { createRoutes } from './config/express-routes';
+import { setupApolloServer } from './graphql/apollo-server';
 
-const app = express();
-const router = express.Router();
+export const setupApp = async (): Promise<Express> => {
+  //Create express app
+  const app = express();
 
-createRoutes(router);
+  //Create routes
+  const router = express.Router();
+  createRoutes(router);
 
-app.use(express.json());
-app.use(router);
+  //Config
+  app.use(express.json());
+  app.use(router);
 
-export default app;
+  //Add apollo server in express
+  const apolloServer = await setupApolloServer();
+  await apolloServer.start();
+  apolloServer.applyMiddleware({ app });
+
+  return app;
+};

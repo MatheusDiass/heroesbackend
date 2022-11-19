@@ -12,6 +12,10 @@ export class FetchHeroByIdUseCase {
 
     const hero = await this.fetchHeroByIdRepository.fetchHeroById(id);
 
+    if (!hero) {
+      throw new Error();
+    }
+
     return hero;
   }
 }

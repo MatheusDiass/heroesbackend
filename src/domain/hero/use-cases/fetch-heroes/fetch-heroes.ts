@@ -5,8 +5,8 @@ export class FetchHeroesUseCase {
 
   async execute(filter: Filter): Promise<Hero[]> {
     //Check if the startWith has not been provided
-    if (!filter.startWith) {
-      filter.startWith = '';
+    if (!filter.nameStartsWith) {
+      filter.nameStartsWith = '';
     }
 
     //Check if the limit has been provided correctly
