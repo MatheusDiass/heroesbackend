@@ -1,1 +1,2 @@
-export { IMailProvider } from './contract/mail-provider';
+export * from './contract/mail-provider';
+export * from './mail-provider';
