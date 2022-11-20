@@ -4,9 +4,15 @@ export const apolloServerAdapter = async (
   controller: Controller,
   args?: any
 ): Promise<any> => {
-  const request = {
-    ...args,
-  };
+  let request = undefined;
+
+  if (!(typeof args === 'object')) {
+    request = args;
+  } else {
+    request = {
+      ...args,
+    };
+  }
 
   const response = await controller.handle(request);
 

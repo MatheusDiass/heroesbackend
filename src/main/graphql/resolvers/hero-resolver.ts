@@ -3,6 +3,7 @@ import { HeroModel } from '../models/hero-model';
 import { HeroFilterInput } from '../inputs';
 import { apolloServerAdapter } from '../../adapters';
 import { makeFetchHeroesController } from '../../hero/factories/controllers';
+import { makeFetchHeroByIdController } from '../../hero/factories/controllers/fetch-hero-by-id-controller-factory';
 
 @Resolver()
 export class HeroResolver {
@@ -10,11 +11,11 @@ export class HeroResolver {
   async heroes(
     @Arg('filter', { nullable: true }) filter: HeroFilterInput
   ): Promise<HeroModel[]> {
-    const heroes = await apolloServerAdapter(
-      makeFetchHeroesController(),
-      filter
-    );
+    return await apolloServerAdapter(makeFetchHeroesController(), filter);
+  }
 
-    return heroes;
+  @Query(() => HeroModel)
+  async hero(@Arg('id') id: number): Promise<HeroModel> {
+    return await apolloServerAdapter(makeFetchHeroByIdController(), id);
   }
 }
