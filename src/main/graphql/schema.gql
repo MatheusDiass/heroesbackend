@@ -27,6 +27,7 @@ type HeroModel {
 }
 
 type Query {
+  hero(id: Float!): HeroModel!
   heroes(filter: HeroFilterInput): [HeroModel!]!
 }
 
