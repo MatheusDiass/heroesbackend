@@ -32,7 +32,8 @@ class FetchFavoriteByIdRepositorySpy implements IFetchFavoriteByIdRepository {
   private favorites = [
     {
       id: 2,
-      name: 'Spider Man Favorite',
+      userId: 1,
+      heroId: 1,
       hero: {
         id: 1,
         name: 'Spider Man',
@@ -44,7 +45,8 @@ class FetchFavoriteByIdRepositorySpy implements IFetchFavoriteByIdRepository {
     },
     {
       id: 3,
-      name: 'Iron Man Favorite',
+      userId: 1,
+      heroId: 1,
       hero: {
         id: 2,
         name: 'Iron Man',
