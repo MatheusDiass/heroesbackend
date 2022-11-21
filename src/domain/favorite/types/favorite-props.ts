@@ -2,6 +2,7 @@ import { HeroProps } from '../../hero';
 
 export type FavoriteProps = {
   id?: number;
-  name: string;
+  userId: number;
+  heroId?: number;
   hero?: HeroProps;
 };
