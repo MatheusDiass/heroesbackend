@@ -7,7 +7,10 @@ import {
   Mutation,
 } from 'type-graphql';
 import { apolloServerAdapter } from '../../adapters';
-import { makeAddFavoriteController } from '../../favorite/factories/controllers';
+import {
+  makeAddFavoriteController,
+  makeRemoveFavoriteController,
+} from '../../favorite/factories/controllers';
 import { makeFetchFavoriteByIdController } from '../../favorite/factories/controllers/fetch-favorite-by-id-controller-factory';
 import { makeFetchHeroByIdController } from '../../hero/factories/controllers/fetch-hero-by-id-controller-factory';
 import { AddFavoriteInput } from '../inputs';
@@ -31,7 +34,12 @@ export class FavoriteResolver {
   @Mutation(() => Boolean)
   async addFavorite(
     @Arg('AddFavoriteInput') addFavoriteInput: AddFavoriteInput
-  ): Promise<void> {
+  ): Promise<boolean> {
     return apolloServerAdapter(makeAddFavoriteController(), addFavoriteInput);
+  }
+
+  @Mutation(() => Boolean)
+  async removeFavorite(@Arg('id') id: number): Promise<boolean> {
+    return apolloServerAdapter(makeRemoveFavoriteController(), id);
   }
 }

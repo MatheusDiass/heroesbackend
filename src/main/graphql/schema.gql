@@ -41,6 +41,7 @@ type HeroModel {
 
 type Mutation {
   addFavorite(AddFavoriteInput: AddFavoriteInput!): Boolean!
+  removeFavorite(id: Float!): Boolean!
 }
 
 type Query {
