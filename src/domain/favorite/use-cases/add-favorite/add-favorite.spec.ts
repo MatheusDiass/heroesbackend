@@ -1,25 +1,61 @@
 import { describe, expect, it } from 'vitest';
+import { AddFavoriteUseCase } from './add-favorite';
+import { Hero } from '../../../hero';
+import { User } from '../../../user';
 
 type AddFavoriteInput = {
   userId: number;
   heroId: number;
 };
 
-class AddFavoriteUseCase {
-  constructor(private readonly addFavoriteRepository: IAddFavoriteRepository) {}
+class FetchUserByIdRepositorySpy {
+  private users = [
+    {
+      id: 2,
+      name: 'Test',
+      lastName: 'Test',
+      nickname: 'MrTest',
+      email: 'test@test.com',
+      password: 'Test@@test1',
+      bio: 'Test bio',
+      confirmationCode: 0,
+    },
+    {
+      id: 3,
+      name: 'Test',
+      lastName: 'Test',
+      nickname: 'MrTest',
+      email: 'test@test.com',
+      password: 'Test@@test1',
+      bio: 'Test bio',
+      confirmationCode: 875611,
+    },
+  ];
 
-  async execute({ userId, heroId }: AddFavoriteInput): Promise<void> {
-    if (!userId) {
-      throw new Error();
+  async fetchUserById(id: number): Promise<User | undefined> {
+    const user = this.users.find((user) => user.id === id);
+
+    if (user) {
+      return new User(user);
     }
 
-    if (!heroId) {
-      throw new Error();
+    return undefined;
+  }
+}
+
+class FetchHeroByIdRepositorySpy {
+  async fetchHeroById(id: number): Promise<Hero | undefined> {
+    if (id === 1) {
+      return undefined;
     }
 
-    await this.addFavoriteRepository.addFavorite({
-      userId,
-      heroId,
+    return new Hero({
+      id,
+      name: 'Iron Man',
+      description: 'He is a superhero',
+      image: 'ironman.jpeg',
+      stories: [],
+      events: [],
     });
   }
 }
@@ -39,10 +75,36 @@ class AddFavoriteRepositorySpy implements IAddFavoriteRepository {
 }
 
 const makeSut = () => {
+  const fetchUserByIdRepository = new FetchUserByIdRepositorySpy();
+  const fetchHeroByIdRepository = new FetchHeroByIdRepositorySpy();
   const addFavoriteRepositorySpy = new AddFavoriteRepositorySpy();
-  const sut = new AddFavoriteUseCase(addFavoriteRepositorySpy);
+  const sut = new AddFavoriteUseCase(
+    fetchUserByIdRepository,
+    fetchHeroByIdRepository,
+    addFavoriteRepositorySpy
+  );
 
   return sut;
+};
+
+const makeFetchUserByIdRepositoryWithError = () => {
+  class FetchUserByIdRepositorySpy {
+    async fetchUserById(): Promise<User | undefined> {
+      throw new Error();
+    }
+  }
+
+  return new FetchUserByIdRepositorySpy();
+};
+
+const makeFetchHeroByIdRepositoryWithError = () => {
+  class FetchHeroByIdRepositorySpy {
+    async fetchHeroById(): Promise<Hero | undefined> {
+      throw new Error();
+    }
+  }
+
+  return new FetchHeroByIdRepositorySpy();
 };
 
 const makeAddFavoriteRepositoryWithError = () => {
@@ -62,14 +124,30 @@ describe('Add Hero to Favorites Use Case', () => {
     expect(sut.execute({ userId: 0, heroId: 1234 })).rejects.toThrow();
   });
 
+  it('should throw an error if the user doesnt exist', () => {
+    const sut = makeSut();
+
+    expect(sut.execute({ userId: 1, heroId: 2 })).rejects.toThrow();
+  });
+
   it('should throw an error if no hero id is provided', () => {
     const sut = makeSut();
 
     expect(sut.execute({ userId: 3, heroId: 0 })).rejects.toThrow();
   });
 
+  it('should throw an error if the hero doesnt exist', () => {
+    const sut = makeSut();
+
+    expect(sut.execute({ userId: 1, heroId: 1 })).rejects.toThrow();
+  });
+
   it('should throw error if any dependency throws', () => {
-    const sut = new AddFavoriteUseCase(makeAddFavoriteRepositoryWithError());
+    const sut = new AddFavoriteUseCase(
+      makeFetchUserByIdRepositoryWithError(),
+      makeFetchHeroByIdRepositoryWithError(),
+      makeAddFavoriteRepositoryWithError()
+    );
 
     expect(sut.execute({ userId: 3, heroId: 1234 })).rejects.toThrow();
   });
