@@ -8,9 +8,9 @@ export class FetchHeroesController implements Controller {
   async handle(request: any): Promise<HttpResponse> {
     try {
       const filter = {
-        nameStartsWith: request.nameStartsWith,
-        limit: request.limit,
-        offset: request.offset,
+        nameStartsWith: request?.nameStartsWith,
+        limit: request?.limit,
+        offset: request?.offset,
       };
 
       const heroes = await this.fetchHeroesUseCase.execute(filter);
