@@ -83,9 +83,10 @@ class MailProviderSpy {
   public emailSent = false;
   public message = {};
 
-  async sendMail(message: Message): Promise<void> {
+  async sendMail(message: Message): Promise<string> {
     this.message = message;
     this.emailSent = true;
+    return '';
   }
 }
 
@@ -193,7 +194,7 @@ const makeMailProviderError = () => {
     public emailSent = false;
     public message = {};
 
-    async sendMail(message: Message): Promise<void> {
+    async sendMail(message: Message): Promise<string> {
       this.message = message;
       this.emailSent = false;
       throw new Error();
