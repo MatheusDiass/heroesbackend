@@ -6,9 +6,9 @@
   "scripts": {
     "commit": "git-cz",
     "test": "vitest",
+    "tsc": "tsc",
     "dev": "tsnd --respawn src/app.ts",
-    "prod": "nodemon dist/app.js",
-    "tsc": "tsc"
+    "prod": "npm run tsc && nodemon dist/app.js"
   },
   "repository": {
     "type": "git",
