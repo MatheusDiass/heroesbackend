@@ -3,6 +3,12 @@
 # !!!   DO NOT MODIFY THIS FILE BY YOURSELF   !!!
 # -----------------------------------------------
 
+"""Add Favorite Input"""
+input AddFavoriteInput {
+  heroId: ID!
+  userId: ID!
+}
+
 """The Event Model"""
 type EventModel {
   link: String!
@@ -31,6 +37,10 @@ type HeroModel {
   image: String!
   name: String!
   stories: [StoryModel!]!
+}
+
+type Mutation {
+  addFavorite(AddFavoriteInput: AddFavoriteInput!): Boolean!
 }
 
 type Query {
