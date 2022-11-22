@@ -1,33 +1,29 @@
 import { FavoriteProps } from '../types/favorite-props';
 
 export class Favorite {
-  private favorite: FavoriteProps;
+  private id?: number;
+  private userId: number;
+  private heroId?: number;
 
   constructor(props: FavoriteProps) {
-    if (props.id && !props.hero) {
-      throw new Error('The hero must be provided');
-    }
-
     if (!props.id && !props.heroId) {
       throw new Error('The hero id must be provided');
     }
 
-    this.favorite = props;
+    this.id = props.id;
+    this.userId = props.userId;
+    this.heroId = props.heroId;
   }
 
   get getId() {
-    return this.favorite.id;
+    return this.id;
   }
 
   get getUserId() {
-    return this.favorite.userId;
+    return this.userId;
   }
 
   get getHeroId() {
-    return this.favorite.heroId;
-  }
-
-  get getHero() {
-    return this.favorite.hero;
+    return this.heroId;
   }
 }

@@ -9,6 +9,13 @@ type EventModel {
   title: String!
 }
 
+type FavoriteModel {
+  hero: HeroModel!
+  heroId: String!
+  id: String!
+  userId: String!
+}
+
 """Hero Filter Input"""
 input HeroFilterInput {
   limit: Float
@@ -27,6 +34,7 @@ type HeroModel {
 }
 
 type Query {
+  favoriteById(id: Float!): FavoriteModel!
   hero(id: Float!): HeroModel!
   heroes(filter: HeroFilterInput): [HeroModel!]!
 }

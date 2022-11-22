@@ -6,24 +6,7 @@ describe('Favorite Entity', () => {
     id: 1,
     userId: 1,
     heroId: 1,
-    hero: {
-      id: 1,
-      name: 'Spider Man',
-      description: 'Its the Spider Man',
-      image: 'spiderman.png',
-      stories: [],
-      events: [],
-    },
   };
-
-  it('should throw an error if it has id and doesnt have a hero in favorite', () => {
-    expect(() => {
-      new Favorite({
-        id: 1,
-        userId: 1,
-      });
-    }).toThrow();
-  });
 
   it('should throw an error if it has no id and doesnt have a hero id in favorites', () => {
     expect(() => {
@@ -55,13 +38,5 @@ describe('Favorite Entity', () => {
     });
 
     expect(favorite.getHeroId).toEqual(favoriteProps.heroId);
-  });
-
-  it('should return the same hero informed in the creation of the favorite class instance', () => {
-    const favorite = new Favorite({
-      ...favoriteProps,
-    });
-
-    expect(favorite.getHero).toEqual(favoriteProps.hero);
   });
 });

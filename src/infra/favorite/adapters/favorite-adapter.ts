@@ -7,7 +7,6 @@ export abstract class FavoriteAdapter {
       id: obj.favorite_id,
       userId: obj.favorite_userid,
       heroId: obj.favorite_heroid,
-      hero: obj.favorite_hero,
     });
   }
 
@@ -17,7 +16,6 @@ export abstract class FavoriteAdapter {
       favorite_id: favorite.getId,
       favorite_userid: favorite.getUserId,
       favorite_heroid: favorite.getHeroId,
-      favorite_hero: favorite.getHero,
     };
   }
 }

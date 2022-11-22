@@ -31,13 +31,8 @@ export class FavoriteRepositoryInMemory
       return undefined;
     }
 
-    const hero = database.heroes.find(
-      (hero: any) => hero.id === favorite.favorite_heroid
-    );
-
     return FavoriteAdapter.fromJson({
       ...favorite,
-      favorite_hero: hero,
     });
   }
 
