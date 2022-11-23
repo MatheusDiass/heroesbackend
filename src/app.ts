@@ -1,9 +1,10 @@
 import { setupApp } from './main/server';
 
-const port = 3000;
-
 const start = async () => {
   const app = await setupApp();
+
+  const port = process.env.PORT || 3000;
+
   app.listen(port, () => {
     // eslint-disable-next-line no-console
     console.log(
