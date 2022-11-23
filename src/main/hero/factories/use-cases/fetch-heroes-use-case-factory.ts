@@ -1,7 +1,7 @@
 import { FetchHeroesUseCase } from '../../../../domain/hero';
-import { HeroRepositoryInMemory } from '../../../../infra/hero/repositories/in-memory/hero-repository-in-memory';
+import { FetchHeroesRepositoryInMemory } from '../../../../infra/hero/repositories/in-memory';
 
 export const makeFetchHeroesUseCase = () => {
-  const fetchHeroesRepository = new HeroRepositoryInMemory();
+  const fetchHeroesRepository = new FetchHeroesRepositoryInMemory();
   return new FetchHeroesUseCase(fetchHeroesRepository);
 };

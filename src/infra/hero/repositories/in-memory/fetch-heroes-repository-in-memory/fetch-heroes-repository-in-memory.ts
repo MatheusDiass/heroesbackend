@@ -1,15 +1,12 @@
 import {
-  IFetchHeroesRepository,
-  IFetchHeroByIdRepository,
   Filter,
   Hero,
-} from '../../../../domain/hero';
-import { HeroAdapter } from '../../adapters';
-import { heroesData } from './heroes-mock';
+  IFetchHeroesRepository,
+} from '../../../../../domain/hero';
+import { database } from '../../../../database-in-memory';
+import { HeroAdapter } from '../../../adapters';
 
-export class HeroRepositoryInMemory
-  implements IFetchHeroesRepository, IFetchHeroByIdRepository
-{
+export class FetchHeroesRepositoryInMemory implements IFetchHeroesRepository {
   async fetchHeroes(filter: Filter): Promise<Hero[]> {
     let heroes: any[] = [];
     const nameStartsWith: string = filter.nameStartsWith || '';
@@ -17,7 +14,7 @@ export class HeroRepositoryInMemory
     const offset: number = filter.offset || 0;
 
     //Fetch heroes from a offset
-    heroes = heroesData.slice(offset);
+    heroes = database.heroes.slice(offset);
 
     //Filter heroes by name that starts with
     heroes = heroes.filter((hero) => hero.name.startsWith(nameStartsWith));
@@ -28,15 +25,5 @@ export class HeroRepositoryInMemory
     }
 
     return heroes.map((hero) => HeroAdapter.fromJson(hero));
-  }
-
-  async fetchHeroById(id: number): Promise<Hero | undefined> {
-    const hero = heroesData.find((hero) => hero.id === id);
-
-    if (!hero) {
-      return undefined;
-    }
-
-    return HeroAdapter.fromJson(hero);
   }
 }
