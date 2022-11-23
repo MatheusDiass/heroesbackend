@@ -6,9 +6,10 @@
   "scripts": {
     "commit": "git-cz",
     "test": "vitest",
-    "tsc": "tsc",
+    "build": "tsc",
+    "postinstall": "npm run build",
     "dev": "tsnd --respawn src/app.ts",
-    "prod": "npm run tsc && nodemon dist/app.js"
+    "prod": "nodemon dist/app.js"
   },
   "repository": {
     "type": "git",
