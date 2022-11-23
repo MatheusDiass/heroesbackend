@@ -1,9 +1,12 @@
 import { RemoveFavoriteUseCase } from '../../../../domain/favorite';
-import { FavoriteRepositoryInMemory } from '../../../../infra/favorite/implementation/repositories/in-memory/favorite-repository-in-memory';
+import {
+  FetchFavoriteByIdRepositoryInMemory,
+  RemoveFavoriteRepositoryInMemory,
+} from '../../../../infra/favorite/implementation/repositories/in-memory';
 
 export const makeRemoveFavoriteUseCase = () => {
-  const fetchFavoriteByIdRepository = new FavoriteRepositoryInMemory();
-  const removeFavoriteRepository = new FavoriteRepositoryInMemory();
+  const fetchFavoriteByIdRepository = new FetchFavoriteByIdRepositoryInMemory();
+  const removeFavoriteRepository = new RemoveFavoriteRepositoryInMemory();
   return new RemoveFavoriteUseCase(
     fetchFavoriteByIdRepository,
     removeFavoriteRepository
