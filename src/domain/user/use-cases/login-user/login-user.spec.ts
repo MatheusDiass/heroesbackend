@@ -10,11 +10,11 @@ import {
   UserNotFoundError,
 } from '../../../errors';
 
-interface IFindUserByEmailRepository {
+interface IFetchUserByEmailRepository {
   findUserByEmail(email: string): Promise<User | undefined>;
 }
 
-class FindUserByEmailRepository implements IFindUserByEmailRepository {
+class FindUserByEmailRepository implements IFetchUserByEmailRepository {
   private users: any[] = [
     {
       id: 1,
@@ -117,7 +117,7 @@ const makeSut = () => {
 };
 
 const makeFindUserByEmailRepositoryError = () => {
-  class FindUserByEmailRepository implements IFindUserByEmailRepository {
+  class FindUserByEmailRepository implements IFetchUserByEmailRepository {
     private email = '';
 
     findUserByEmail(email: string): Promise<User | undefined> {

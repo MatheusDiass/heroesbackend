@@ -1,5 +1,16 @@
 export const database: any = {
-  users: [],
+  users: [
+    {
+      user_id: 1,
+      user_name: 'Test',
+      user_lastname: 'Test',
+      user_nickname: 'Test01',
+      user_email: 'test@test.com',
+      user_password: 'Test@test12',
+      user_bio: '',
+      user_confirmationcode: 0,
+    },
+  ],
   favorites: [
     {
       favorite_id: 1,

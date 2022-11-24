@@ -3,7 +3,7 @@ import {
   LoginUser,
   IMailValidator,
   IPasswordValidator,
-  IFindUserByEmailRepository,
+  IFetchUserByEmailRepository,
 } from '../../';
 import { IEncrypter } from '../../../../utils';
 import {
@@ -20,7 +20,7 @@ export class LoginUserUseCase {
     private readonly mailValidator: IMailValidator,
     private readonly passwordValidator: IPasswordValidator,
     private readonly encrypter: IEncrypter,
-    private readonly findUserByEmailRepository: IFindUserByEmailRepository
+    private readonly fetchUserByEmailRepository: IFetchUserByEmailRepository
   ) {}
 
   async execute({ email, password }: LoginUser): Promise<User> {
@@ -59,7 +59,7 @@ export class LoginUserUseCase {
     }
 
     //Fetch user
-    const user = await this.findUserByEmailRepository.findUserByEmail(email);
+    const user = await this.fetchUserByEmailRepository.fetchUserByEmail(email);
 
     //Check if the user does not exist
     if (!user) {
