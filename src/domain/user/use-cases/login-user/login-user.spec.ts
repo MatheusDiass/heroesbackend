@@ -11,10 +11,10 @@ import {
 } from '../../../errors';
 
 interface IFetchUserByEmailRepository {
-  findUserByEmail(email: string): Promise<User | undefined>;
+  fetchUserByEmail(email: string): Promise<User | undefined>;
 }
 
-class FindUserByEmailRepository implements IFetchUserByEmailRepository {
+class FetchUserByEmailRepository implements IFetchUserByEmailRepository {
   private users: any[] = [
     {
       id: 1,
@@ -36,7 +36,7 @@ class FindUserByEmailRepository implements IFetchUserByEmailRepository {
     },
   ];
 
-  async findUserByEmail(email: string): Promise<User | undefined> {
+  async fetchUserByEmail(email: string): Promise<User | undefined> {
     const user = this.users.find((user) => user.email === email);
 
     if (!user) {
@@ -102,12 +102,12 @@ const makeSut = () => {
   const mailValidator = new MailValidator();
   const passwordValidator = new PasswordValidator();
   const encrypter = new EncrypterSpy();
-  const findUserByEmailRepository = new FindUserByEmailRepository();
+  const fetchUserByEmailRepository = new FetchUserByEmailRepository();
   const sut = new LoginUserUseCase(
     mailValidator,
     passwordValidator,
     encrypter,
-    findUserByEmailRepository
+    fetchUserByEmailRepository
   );
 
   return {
@@ -117,16 +117,16 @@ const makeSut = () => {
 };
 
 const makeFindUserByEmailRepositoryError = () => {
-  class FindUserByEmailRepository implements IFetchUserByEmailRepository {
+  class FetchUserByEmailRepository implements IFetchUserByEmailRepository {
     private email = '';
 
-    findUserByEmail(email: string): Promise<User | undefined> {
+    fetchUserByEmail(email: string): Promise<User | undefined> {
       this.email = email;
       throw new Error();
     }
   }
 
-  return new FindUserByEmailRepository();
+  return new FetchUserByEmailRepository();
 };
 
 const makeMailValidatorError = () => {
