@@ -2,6 +2,8 @@ import {
   IFetchFavoriteByIdRepository,
   IRemoveFavoriteRepository,
 } from '../../';
+import { MissingParameterError } from '../../../../errors';
+import { FavoriteNotFoundError } from '../../errors';
 
 export class RemoveFavoriteUseCase {
   constructor(
@@ -11,7 +13,7 @@ export class RemoveFavoriteUseCase {
 
   async execute(id: number): Promise<void> {
     if (!id) {
-      throw new Error();
+      throw new MissingParameterError('id');
     }
 
     const favorite = await this.fetchFavoriteByIdRepository.fetchFavoriteById(
@@ -19,7 +21,7 @@ export class RemoveFavoriteUseCase {
     );
 
     if (!favorite) {
-      throw new Error();
+      throw new FavoriteNotFoundError();
     }
 
     await this.removeFavoriteRepository.removeFavorite(id);

@@ -1,28 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { Favorite } from '../../entities/favorite';
-
-class RemoveFavoriteUseCase {
-  constructor(
-    private fetchFavoriteByIdRepository: IFetchFavoriteByIdRepository,
-    private removeFavoriteRepository: IRemoveFavoriteRepository
-  ) {}
-
-  async execute(id: number): Promise<void> {
-    if (!id) {
-      throw new Error();
-    }
-
-    const favorite = await this.fetchFavoriteByIdRepository.fetchFavoriteById(
-      id
-    );
-
-    if (!favorite) {
-      throw new Error();
-    }
-
-    await this.removeFavoriteRepository.removeFavorite(id);
-  }
-}
+import { RemoveFavoriteUseCase } from './remove-favorite';
+import { MissingParameterError } from '../../../../errors';
+import { FavoriteNotFoundError } from '../../errors';
 
 interface IFetchFavoriteByIdRepository {
   fetchFavoriteById(id: number): Promise<Favorite | undefined>;
@@ -115,16 +95,16 @@ const makeRemoveFavoriteRepositoryWithError = () => {
 };
 
 describe('Remove Favorite Use Case', () => {
-  it('should throw if no favorite id is provided', () => {
+  it('should throw MissingParameterError type error if no id is provided', () => {
     const sut = makeSut();
 
-    expect(sut.execute(0)).rejects.toThrow();
+    expect(sut.execute(0)).rejects.toThrow(MissingParameterError);
   });
 
-  it('should throw an error if the favorite doesnt exist', () => {
+  it('should throw FavoriteNotFoundError type error if the favorite is not found', () => {
     const sut = makeSut();
 
-    expect(sut.execute(1)).rejects.toThrow();
+    expect(sut.execute(1)).rejects.toThrow(FavoriteNotFoundError);
   });
 
   it('should throw error if any dependency throws', () => {

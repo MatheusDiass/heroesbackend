@@ -1,3 +1,4 @@
+import { MissingParameterError } from '../../../errors';
 import { FavoriteProps } from '../types/favorite-props';
 
 export class Favorite {
@@ -7,7 +8,7 @@ export class Favorite {
 
   constructor(props: FavoriteProps) {
     if (!props.id && !props.heroId) {
-      throw new Error('The hero id must be provided');
+      throw new MissingParameterError('heroId');
     }
 
     this.id = props.id;
