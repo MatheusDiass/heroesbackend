@@ -1,25 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { Hero } from '../../';
-
-class FetchHeroByIdUseCase {
-  constructor(
-    private readonly fetchHeroByIdRepository: FetchHeroByIdRepository
-  ) {}
-
-  async execute(id: number): Promise<Hero> {
-    if (!id) {
-      throw new Error();
-    }
-
-    const hero = await this.fetchHeroByIdRepository.fetchHeroById(id);
-
-    if (!hero) {
-      throw new Error();
-    }
-
-    return hero;
-  }
-}
+import { FetchHeroByIdUseCase } from './fetch-hero-by-id';
+import { MissingParameterError } from '../../../../errors';
+import { HeroNotFoundError } from '../../errors';
 
 class FetchHeroByIdRepository {
   async fetchHeroById(id: number): Promise<Hero | undefined> {
@@ -49,11 +32,11 @@ const makeFetchHeroByIdRepositoryError = () => {
 };
 
 describe('Fetch Hero by Id Use Case', () => {
-  it('should throw error if no id is provided or id is not correctly', () => {
+  it('should throw MissingParameterError type error if no id is provided', () => {
     const fetchHeroByIdRepository = new FetchHeroByIdRepository();
     const sut = new FetchHeroByIdUseCase(fetchHeroByIdRepository);
 
-    expect(sut.execute(0)).rejects.toThrow();
+    expect(sut.execute(0)).rejects.toThrow(MissingParameterError);
   });
 
   it('should return an instance of Hero', async () => {
@@ -64,11 +47,11 @@ describe('Fetch Hero by Id Use Case', () => {
     expect(hero).toBeInstanceOf(Hero);
   });
 
-  it('should throw an error if hero does not exist', async () => {
+  it('should throw HeroNotFoundError type error if the hero does not exist', () => {
     const fetchHeroByIdRepository = new FetchHeroByIdRepository();
     const sut = new FetchHeroByIdUseCase(fetchHeroByIdRepository);
 
-    expect(sut.execute(1)).rejects.toThrow();
+    expect(sut.execute(1)).rejects.toThrow(HeroNotFoundError);
   });
 
   it('should throw error if any dependency throws', () => {

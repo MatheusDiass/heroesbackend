@@ -1,3 +1,5 @@
+import { EmptyParameterError } from '../../../errors';
+
 export type HeroProps = {
   id?: number;
   name: string;
@@ -27,7 +29,7 @@ export class Hero {
 
   constructor(props: HeroProps) {
     if (props.name.trim() === '') {
-      throw new Error('Name can not be empty.');
+      throw new EmptyParameterError('name');
     }
 
     if (!props.stories) {

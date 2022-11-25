@@ -1,42 +1,13 @@
 import { describe, expect, it, test } from 'vitest';
 import { Hero } from '../../entities/hero';
-
-class FetchHeroesUseCase {
-  constructor(private readonly fetchHeroesRepository: FetchHeroesRepository) {}
-
-  async execute(filter: Filter): Promise<Hero[]> {
-    if (!filter.nameStartsWith) {
-      filter.nameStartsWith = '';
-    }
-
-    if (filter.limit && (filter.limit > 100 || filter.limit < 0)) {
-      throw new Error();
-    }
-
-    if (!filter.limit) {
-      filter.limit = 0;
-    }
-
-    if (!filter.offset) {
-      filter.offset = 0;
-    }
-
-    const heroes = await this.fetchHeroesRepository.fetchHeroes();
-    return heroes;
-  }
-}
+import { FetchHeroesUseCase } from './fetch-heroes';
+import { InvalidHeroesLimitInFilterError } from '../../errors';
 
 class FetchHeroesRepository {
   async fetchHeroes(): Promise<Hero[]> {
     return [];
   }
 }
-
-type Filter = {
-  nameStartsWith?: string;
-  limit?: number;
-  offset?: number;
-};
 
 const makeSut = () => {
   const fetchHeroesRepository = new FetchHeroesRepository();
@@ -56,24 +27,28 @@ const makeFetchHeroesRepositoryError = () => {
 };
 
 describe('Fetch Heroes Use Case', () => {
-  it('should throw error if paging limit is greater than 100', () => {
+  it('should throw InvalidHeroesLimitInFilterError type error if limit is greater than 100', () => {
     const sut = makeSut();
     const filter = {
       limit: 101,
       offset: 2,
     };
 
-    expect(sut.execute(filter)).rejects.toThrow();
+    expect(sut.execute(filter)).rejects.toThrow(
+      InvalidHeroesLimitInFilterError
+    );
   });
 
-  it('should throw error if paging limit is less than 100', () => {
+  it('should throw InvalidHeroesLimitInFilterError type error if limit is less than 1', () => {
     const sut = makeSut();
     const filter = {
-      limit: -1,
+      limit: 1,
       offset: 2,
     };
 
-    expect(sut.execute(filter)).rejects.toThrow();
+    expect(sut.execute(filter)).rejects.toThrow(
+      InvalidHeroesLimitInFilterError
+    );
   });
 
   test('if filter nameStartsWith property is empty if no value is passed', async () => {

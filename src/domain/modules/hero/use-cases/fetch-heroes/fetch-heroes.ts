@@ -1,4 +1,5 @@
 import { Hero, IFetchHeroesRepository, Filter } from '../../';
+import { InvalidHeroesLimitInFilterError } from '../../errors';
 
 export class FetchHeroesUseCase {
   constructor(private readonly fetchHeroesRepository: IFetchHeroesRepository) {}
@@ -10,8 +11,8 @@ export class FetchHeroesUseCase {
     }
 
     //Check if the limit has been provided correctly
-    if (filter.limit && (filter.limit > 100 || filter.limit < 0)) {
-      throw new Error();
+    if (filter.limit && (filter.limit > 100 || filter.limit < 1)) {
+      throw new InvalidHeroesLimitInFilterError();
     }
 
     //Check if the limit has not been provided

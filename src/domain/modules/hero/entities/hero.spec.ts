@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { EmptyParameterError } from '../../../errors';
 import { Hero } from './hero';
 
 describe('Hero', () => {
@@ -29,13 +30,13 @@ describe('Hero', () => {
     ],
   };
 
-  it('should return an error when hero name is empty', () => {
+  it('should throw EmptyParameterError type error if hero name is empty', () => {
     expect(() => {
       new Hero({
         ...heroProps,
         name: '',
       });
-    }).toThrow();
+    }).toThrow(EmptyParameterError);
   });
 
   it('should return the same stories informed in the creation of the hero class instance', () => {
