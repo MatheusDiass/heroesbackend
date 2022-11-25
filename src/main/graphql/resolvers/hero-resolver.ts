@@ -2,8 +2,8 @@ import { Resolver, Query, Arg } from 'type-graphql';
 import { HeroModel } from '../models/hero-model';
 import { HeroFilterInput } from '../inputs';
 import { apolloServerAdapter } from '../../adapters';
-import { makeFetchHeroesController } from '../../hero/factories/controllers';
-import { makeFetchHeroByIdController } from '../../hero/factories/controllers/fetch-hero-by-id-controller-factory';
+import { makeFetchHeroesController } from '../../modules/hero/factories/controllers';
+import { makeFetchHeroByIdController } from '../../modules/hero/factories/controllers/fetch-hero-by-id-controller-factory';
 
 @Resolver()
 export class HeroResolver {

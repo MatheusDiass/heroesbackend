@@ -10,9 +10,9 @@ import { apolloServerAdapter } from '../../adapters';
 import {
   makeAddFavoriteController,
   makeRemoveFavoriteController,
-} from '../../favorite/factories/controllers';
-import { makeFetchFavoriteByIdController } from '../../favorite/factories/controllers/fetch-favorite-by-id-controller-factory';
-import { makeFetchHeroByIdController } from '../../hero/factories/controllers/fetch-hero-by-id-controller-factory';
+} from '../../modules/favorite/factories/controllers';
+import { makeFetchFavoriteByIdController } from '../../modules/favorite/factories/controllers';
+import { makeFetchHeroByIdController } from '../../modules/hero/factories/controllers';
 import { AddFavoriteInput } from '../inputs';
 import { FavoriteModel, HeroModel } from '../models';
 
