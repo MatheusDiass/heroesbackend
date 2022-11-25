@@ -1,6 +1,6 @@
 export class HeroNotFoundError extends Error {
   constructor() {
-    super('Hero nor found!');
+    super('Hero not found!');
     this.name = 'HeroNotFoundError';
   }
 }

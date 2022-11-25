@@ -1,4 +1,6 @@
 import { Favorite, IFetchFavoriteByIdRepository } from '../../';
+import { MissingParameterError } from '../../../../errors';
+import { FavoriteNotFoundError } from '../../errors';
 
 export class FetchFavoriteByIdUseCase {
   constructor(
@@ -7,7 +9,7 @@ export class FetchFavoriteByIdUseCase {
 
   async execute(id: number): Promise<Favorite | undefined> {
     if (!id) {
-      throw new Error();
+      throw new MissingParameterError('id');
     }
 
     const favorite = await this.fetchFavoritesByIdRepository.fetchFavoriteById(
@@ -15,7 +17,7 @@ export class FetchFavoriteByIdUseCase {
     );
 
     if (!favorite) {
-      throw new Error();
+      throw new FavoriteNotFoundError();
     }
 
     return favorite;

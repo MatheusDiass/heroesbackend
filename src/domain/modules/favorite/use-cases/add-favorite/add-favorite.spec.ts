@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { AddFavoriteUseCase } from './add-favorite';
 import { Hero } from '../../../hero';
 import { User } from '../../../user';
+import { MissingParameterError, UserNotFoundError } from '../../../../errors';
+import { HeroNotFoundError } from '../../../hero/errors';
 
 type AddFavoriteInput = {
   userId: number;
@@ -118,28 +120,36 @@ const makeAddFavoriteRepositoryWithError = () => {
 };
 
 describe('Add Hero to Favorites Use Case', () => {
-  it('should throw an error if no user id is provided', () => {
+  it('should throw MissingParameterError type error if no user id is provided', () => {
     const sut = makeSut();
 
-    expect(sut.execute({ userId: 0, heroId: 1234 })).rejects.toThrow();
+    expect(sut.execute({ userId: 0, heroId: 1234 })).rejects.toThrow(
+      MissingParameterError
+    );
   });
 
-  it('should throw an error if the user doesnt exist', () => {
+  it('should throw UserNotFoundError type error if the user is not found', () => {
     const sut = makeSut();
 
-    expect(sut.execute({ userId: 1, heroId: 2 })).rejects.toThrow();
+    expect(sut.execute({ userId: 1, heroId: 2 })).rejects.toThrow(
+      UserNotFoundError
+    );
   });
 
-  it('should throw an error if no hero id is provided', () => {
+  it('should throw MissingParameterError type error if no hero id is provided', () => {
     const sut = makeSut();
 
-    expect(sut.execute({ userId: 3, heroId: 0 })).rejects.toThrow();
+    expect(sut.execute({ userId: 3, heroId: 0 })).rejects.toThrow(
+      MissingParameterError
+    );
   });
 
-  it('should throw an error if the hero doesnt exist', () => {
+  it('should throw HeroNotFoundError type error if the hero is not found', () => {
     const sut = makeSut();
 
-    expect(sut.execute({ userId: 1, heroId: 1 })).rejects.toThrow();
+    expect(sut.execute({ userId: 2, heroId: 1 })).rejects.toThrow(
+      HeroNotFoundError
+    );
   });
 
   it('should throw error if any dependency throws', () => {

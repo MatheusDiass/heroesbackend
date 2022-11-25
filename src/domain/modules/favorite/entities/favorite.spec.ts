@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { MissingParameterError } from '../../../errors';
 import { Favorite } from './favorite';
 
 describe('Favorite Entity', () => {
@@ -8,12 +9,12 @@ describe('Favorite Entity', () => {
     heroId: 1,
   };
 
-  it('should throw an error if it has no id and doesnt have a hero id in favorites', () => {
+  it('should throw MissingParameterError type error if it has no id and doesnt have a hero id in favorites', () => {
     expect(() => {
       new Favorite({
         userId: 1,
       });
-    }).toThrow();
+    }).toThrow(MissingParameterError);
   });
 
   it('should return the same id informed in the creation of the favorite class instance', () => {
