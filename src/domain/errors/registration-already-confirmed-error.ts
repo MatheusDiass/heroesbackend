@@ -1,6 +1,6 @@
 export class RegistrationAlreadyConfirmedError extends Error {
   constructor() {
-    super('Registration Already Confirmed!');
+    super('Registration already confirmed!');
     this.name = 'RegistrationAlreadyConfirmedError';
   }
 }
