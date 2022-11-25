@@ -1,7 +1,7 @@
 import { Request, Response, Router } from 'express';
 
 //User Routes
-import createUserRoutes from '../user/routes';
+import createUserRoutes from '../modules/user/routes';
 
 export const createRoutes = (router: Router) => {
   router.get('/', (req: Request, res: Response) => {
