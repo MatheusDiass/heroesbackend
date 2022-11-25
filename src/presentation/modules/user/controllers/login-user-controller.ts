@@ -3,7 +3,7 @@ import { Controller } from '../../../contracts';
 import { HttpResponse } from '../../../types';
 
 export class LoginUserController implements Controller {
-  constructor(private loginUserUseCase: LoginUserUseCase) {}
+  constructor(private readonly loginUserUseCase: LoginUserUseCase) {}
 
   async handle(request: any): Promise<HttpResponse> {
     try {
