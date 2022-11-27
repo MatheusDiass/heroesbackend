@@ -73,6 +73,10 @@ export class User {
     this.user.password = password;
   }
 
+  set setConfirmationCode(code: number) {
+    this.user.confirmationCode = code;
+  }
+
   set setToken(token: string) {
     this.user.token = token;
   }

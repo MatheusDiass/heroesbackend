@@ -62,12 +62,14 @@ export class RegisterUserUseCase {
     const hashPassword = await this.encrypter.createHash(user.getPassword);
     user.setPassword = hashPassword;
 
+    //Generate the account confirmation code to send in the email
+    const code = this.codeGenerator.generateCode();
+    user.setConfirmationCode = code;
+
     //Register the user
     const savedUserData = await this.registerUserRepository.registerUser(user);
 
-    //Generate the account confirmation code to send in the email
-    const code = this.codeGenerator.generateCode();
-
+    user;
     //Send account confirmation email
     await this.mailProvider.sendMail({
       to: {
