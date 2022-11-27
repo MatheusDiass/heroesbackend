@@ -14,6 +14,7 @@ import {
   IncorrectEmailFormatError,
   IncorrectPasswordFormatError,
   IncorrectPasswordError,
+  UnconfirmedRegistrationError,
 } from '../../../../errors';
 
 export class LoginUserUseCase {
@@ -66,6 +67,11 @@ export class LoginUserUseCase {
     //Check if the user does not exist
     if (!user) {
       throw new UserNotFoundError();
+    }
+
+    //Check if the user has already confirmed the registration
+    if (user.getConfirmationCode) {
+      throw new UnconfirmedRegistrationError();
     }
 
     //Check if the passwords are different
