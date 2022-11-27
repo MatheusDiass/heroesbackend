@@ -105,6 +105,14 @@ describe('User', () => {
     expect(user.getPassword).toEqual(password);
   });
 
+  it('should assign the confirmation code in the correct property', () => {
+    const confirmationCode = 101010;
+    const user = new User(userProps);
+    user.setConfirmationCode = confirmationCode;
+
+    expect(user.getConfirmationCode).toEqual(confirmationCode);
+  });
+
   it('should assign the token in the correct property', () => {
     const token = 'token';
     const user = new User(userProps);
