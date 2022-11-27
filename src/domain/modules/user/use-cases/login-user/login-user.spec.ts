@@ -6,6 +6,7 @@ import {
   IncorrectEmailFormatError,
   IncorrectPasswordError,
   IncorrectPasswordFormatError,
+  UnconfirmedRegistrationError,
   //MissingParameterError,
   UserNotFoundError,
 } from '../../../../errors';
@@ -23,6 +24,7 @@ class FetchUserByEmailRepository implements IFetchUserByEmailRepository {
       nickname: '',
       email: 'test1@test.com',
       password: 'Test1@@test1hash',
+      confirmationCode: 0,
       bio: '',
     },
     {
@@ -31,7 +33,8 @@ class FetchUserByEmailRepository implements IFetchUserByEmailRepository {
       lastname: 'Test',
       nickname: '',
       email: 'test2@test.com',
-      password: 'test2@@test2hash',
+      password: 'Test2@@test2hash',
+      confirmationCode: 101010,
       bio: '',
     },
   ];
@@ -50,6 +53,7 @@ class FetchUserByEmailRepository implements IFetchUserByEmailRepository {
       nickname: user.nickname,
       email: user.email,
       password: user.password,
+      confirmationCode: user.confirmationCode,
       bio: user.bio,
     });
   }
@@ -207,7 +211,7 @@ describe('Login User Use Case', () => {
   //   );
   // });
 
-  it('should throw EmptyParameterError type error if email is empty', () => {
+  it('should throw EmptyParameterError type error if the email is empty', () => {
     const loginData = makeLoginData();
     loginData.email = '';
 
@@ -216,7 +220,7 @@ describe('Login User Use Case', () => {
     expect(sut.execute(loginData)).rejects.toBeInstanceOf(EmptyParameterError);
   });
 
-  it('should throw IncorrectEmailFormatError type error if email is incorrect format', async () => {
+  it('should throw IncorrectEmailFormatError type error if the email is incorrect format', async () => {
     const loginData = makeLoginData();
     loginData.email = 'test1@.com';
     const { sut } = makeSut();
@@ -243,7 +247,7 @@ describe('Login User Use Case', () => {
   //   );
   // });
 
-  it('should throw EmptyParameterError type error if password is empty', () => {
+  it('should throw EmptyParameterError type error if the password is empty', () => {
     const loginData = makeLoginData();
     loginData.password = '';
 
@@ -252,7 +256,7 @@ describe('Login User Use Case', () => {
     expect(sut.execute(loginData)).rejects.toBeInstanceOf(EmptyParameterError);
   });
 
-  it('should throw IncorrectPasswordFormatError type error if password is incorrect format', async () => {
+  it('should throw IncorrectPasswordFormatError type error if the password is incorrect format', async () => {
     const loginData = makeLoginData();
     loginData.password = 'a';
     const { sut } = makeSut();
@@ -262,7 +266,7 @@ describe('Login User Use Case', () => {
     );
   });
 
-  it('should throw UserNotFoundError type error if user does not exist', () => {
+  it('should throw UserNotFoundError type error if the user does not exist', () => {
     const loginData = makeLoginData();
     loginData.email = 'test@test.com';
 
@@ -271,7 +275,15 @@ describe('Login User Use Case', () => {
     expect(sut.execute(loginData)).rejects.toBeInstanceOf(UserNotFoundError);
   });
 
-  it('should throw IncorrectPasswordError type error if user password is incorrect', () => {
+  it('should throw UnconfirmedRegistrationError type error if the user has not confirmed the registration', () => {
+    const { sut } = makeSut();
+
+    expect(
+      sut.execute({ email: 'test2@test.com', password: 'Test2@@test2' })
+    ).rejects.toBeInstanceOf(UnconfirmedRegistrationError);
+  });
+
+  it('should throw IncorrectPasswordError type error if the user has not confirmed the registration', () => {
     const loginData = makeLoginData();
     loginData.password = 'Test@@test2';
 

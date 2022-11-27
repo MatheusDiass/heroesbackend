@@ -7,3 +7,4 @@ export * from './incorrect-password-error';
 export * from './nickname-already-exists-error';
 export * from './registration-already-confirmed-error';
 export * from './incorrect-confirmation-code-error';
+export * from './unconfirmed-registration-error';
