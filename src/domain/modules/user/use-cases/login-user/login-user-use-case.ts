@@ -4,6 +4,7 @@ import {
   IMailValidator,
   IPasswordValidator,
   IFetchUserByEmailRepository,
+  IToken,
 } from '../../';
 import { IEncrypter } from '../../../../../utils';
 import {
@@ -20,7 +21,8 @@ export class LoginUserUseCase {
     private readonly mailValidator: IMailValidator,
     private readonly passwordValidator: IPasswordValidator,
     private readonly encrypter: IEncrypter,
-    private readonly fetchUserByEmailRepository: IFetchUserByEmailRepository
+    private readonly fetchUserByEmailRepository: IFetchUserByEmailRepository,
+    private readonly token: IToken
   ) {}
 
   async execute({ email, password }: LoginUser): Promise<User> {
@@ -75,6 +77,16 @@ export class LoginUserUseCase {
     if (!comparisonResult) {
       throw new IncorrectPasswordError();
     }
+
+    const token = this.token.create({
+      id: user.getId,
+      name: user.getName,
+      lastname: user.getLastName,
+      nickname: user.getNickname,
+      email: user.getEmail,
+    });
+
+    user.setToken = token;
 
     return user;
   }

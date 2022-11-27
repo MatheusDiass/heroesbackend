@@ -63,7 +63,7 @@ export class RegisterUserUseCase {
     user.setPassword = hashPassword;
 
     //Register the user
-    await this.registerUserRepository.registerUser(user);
+    const savedUserData = await this.registerUserRepository.registerUser(user);
 
     //Generate the account confirmation code to send in the email
     const code = this.codeGenerator.generateCode();
@@ -82,6 +82,6 @@ export class RegisterUserUseCase {
       body: `Olá ${user.getName}, confirme seu email para entrar no mundo dos heroes\n\nCódigo para confirmação: ${code}`,
     });
 
-    return user;
+    return savedUserData;
   }
 }

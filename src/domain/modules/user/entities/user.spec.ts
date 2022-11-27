@@ -5,7 +5,7 @@ describe('User', () => {
   const userProps = {
     id: 1,
     name: 'Test',
-    lastName: 'Test',
+    lastname: 'Test',
     nickname: 'MrTest',
     email: 'Test@Test.com',
     password: 'Test@@1',
@@ -26,7 +26,7 @@ describe('User', () => {
     expect(() => {
       new User({
         ...userProps,
-        lastName: '',
+        lastname: '',
       });
     }).toThrow();
   });
@@ -64,7 +64,7 @@ describe('User', () => {
   it('should return the same last name informed in the creation of the user class instance', () => {
     const user = new User(userProps);
 
-    expect(user.getLastName).toEqual(userProps.lastName);
+    expect(user.getLastName).toEqual(userProps.lastname);
   });
 
   it('should return the same nickname informed in the creation of the user class instance', () => {
@@ -103,5 +103,13 @@ describe('User', () => {
     user.setPassword = password;
 
     expect(user.getPassword).toEqual(password);
+  });
+
+  it('should assign the token in the correct property', () => {
+    const token = 'token';
+    const user = new User(userProps);
+    user.setToken = token;
+
+    expect(user.getToken).toEqual(token);
   });
 });

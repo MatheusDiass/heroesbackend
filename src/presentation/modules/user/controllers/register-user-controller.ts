@@ -17,9 +17,10 @@ export class RegisterUserController implements Controller {
       return {
         statusCode: 201,
         body: {
+          id: user.getId || 0,
           name: user.getName,
           lastname: user.getLastName,
-          nickname: user.getEmail,
+          nickname: user.getNickname || '',
           email: user.getEmail,
         },
       };

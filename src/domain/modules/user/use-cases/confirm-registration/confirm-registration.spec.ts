@@ -17,7 +17,7 @@ class FetchUserByIdRepositorySpy implements IFetchUserByIdRepository {
     {
       id: 2,
       name: 'Test',
-      lastName: 'Test',
+      lastname: 'Test',
       nickname: 'MrTest',
       email: 'test@test.com',
       password: 'Test@@test1',
@@ -27,7 +27,7 @@ class FetchUserByIdRepositorySpy implements IFetchUserByIdRepository {
     {
       id: 3,
       name: 'Test',
-      lastName: 'Test',
+      lastname: 'Test',
       nickname: 'MrTest',
       email: 'test@test.com',
       password: 'Test@@test1',

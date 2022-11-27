@@ -6,7 +6,7 @@ export abstract class UserAdapter {
     return new User({
       id: obj.user_id,
       name: obj.user_name,
-      lastName: obj.user_lastname,
+      lastname: obj.user_lastname,
       nickname: obj.user_nickname,
       email: obj.user_email,
       password: obj.user_password,

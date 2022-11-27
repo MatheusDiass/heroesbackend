@@ -31,7 +31,7 @@ describe('User Adapter', () => {
     const userData = new User({
       id: 1,
       name: 'Test',
-      lastName: 'Test',
+      lastname: 'Test',
       nickname: 'Test01',
       email: 'test@test.com',
       password: 'Test!!1010',
