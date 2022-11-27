@@ -1,12 +1,13 @@
 type UserProps = {
   id?: number;
   name: string;
-  lastName: string;
+  lastname: string;
   nickname?: string;
   email: string;
   password: string;
   bio?: string;
   confirmationCode?: number;
+  token?: string;
 };
 
 export class User {
@@ -17,7 +18,7 @@ export class User {
       throw new Error('Name can not be empty.');
     }
 
-    if (props.lastName.trim() === '') {
+    if (props.lastname.trim() === '') {
       throw new Error('Last name can not be empty.');
     }
 
@@ -41,7 +42,7 @@ export class User {
   }
 
   get getLastName() {
-    return this.user.lastName;
+    return this.user.lastname;
   }
 
   get getNickname() {
@@ -64,7 +65,15 @@ export class User {
     return this.user.confirmationCode;
   }
 
+  get getToken() {
+    return this.user.token;
+  }
+
   set setPassword(password: string) {
     this.user.password = password;
+  }
+
+  set setToken(token: string) {
+    this.user.token = token;
   }
 }

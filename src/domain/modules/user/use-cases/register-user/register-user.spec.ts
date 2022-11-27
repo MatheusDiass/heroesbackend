@@ -10,14 +10,12 @@ import { RegisterUserUseCase } from './register-user-use-case';
 import { Message } from '../../../../../utils';
 
 interface IRegisterUserRepository {
-  registerUser(user: User): Promise<void>;
+  registerUser(user: User): Promise<User>;
 }
 
 class RegisterUserRepositorySpy implements IRegisterUserRepository {
-  private user = {};
-
-  async registerUser(user: User): Promise<void> {
-    this.user = user;
+  async registerUser(user: User): Promise<User> {
+    return user;
   }
 }
 
@@ -32,7 +30,7 @@ class FetchUserByNicknameRepositorySpy
     if (nickname === 'MrTest01') {
       return new User({
         name: 'Test',
-        lastName: 'Test',
+        lastname: 'Test',
         nickname: 'MrTest01',
         email: 'test@test.com',
         password: 'Test@@test1',
@@ -103,7 +101,7 @@ const makeUserRegistrationData = (user?: User): User => {
 
   return new User({
     name: 'Test',
-    lastName: 'Test',
+    lastname: 'Test',
     nickname: 'MrTest',
     email: 'test@test.com',
     password: 'Test@@test1',
@@ -181,7 +179,7 @@ const makeFetchUserByNicknameRepositoryError = () => {
 
 const makeRegisterUserRepositoryError = () => {
   class RegisterUserRepository {
-    registerUser(): Promise<void> {
+    registerUser(): Promise<User> {
       throw new Error();
     }
   }
@@ -219,7 +217,7 @@ describe('Register User Use Case', () => {
     const userRegistrationData = makeUserRegistrationData(
       new User({
         name: 'Test',
-        lastName: 'Test',
+        lastname: 'Test',
         nickname: 'MrTest',
         email: 'test@.com',
         password: 'test@@test',
@@ -237,7 +235,7 @@ describe('Register User Use Case', () => {
     const userRegistrationData = makeUserRegistrationData(
       new User({
         name: 'Test',
-        lastName: 'Test',
+        lastname: 'Test',
         nickname: 'MrTest',
         email: 'test@test.com',
         password: 'a',
@@ -254,7 +252,7 @@ describe('Register User Use Case', () => {
     const userRegistrationData = makeUserRegistrationData(
       new User({
         name: 'Test',
-        lastName: 'Test',
+        lastname: 'Test',
         nickname: 'MrTest01',
         email: 'test@test.com',
         password: 'Test@@test1',

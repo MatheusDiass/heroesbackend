@@ -19,7 +19,7 @@ class FetchUserByEmailRepository implements IFetchUserByEmailRepository {
     {
       id: 1,
       name: 'Test2',
-      lastName: 'Test',
+      lastname: 'Test',
       nickname: '',
       email: 'test1@test.com',
       password: 'Test1@@test1hash',
@@ -28,7 +28,7 @@ class FetchUserByEmailRepository implements IFetchUserByEmailRepository {
     {
       id: 2,
       name: 'Test2',
-      lastName: 'Test',
+      lastname: 'Test',
       nickname: '',
       email: 'test2@test.com',
       password: 'test2@@test2hash',
@@ -46,7 +46,7 @@ class FetchUserByEmailRepository implements IFetchUserByEmailRepository {
     return new User({
       id: user.id,
       name: user.name,
-      lastName: user.lastName,
+      lastname: user.lastname,
       nickname: user.nickname,
       email: user.email,
       password: user.password,
@@ -91,6 +91,16 @@ class EncrypterSpy {
   }
 }
 
+class TokenSpy {
+  create(): string {
+    return 'token';
+  }
+
+  verify(): any {
+    return true;
+  }
+}
+
 const makeLoginData = () => {
   return {
     email: 'test1@test.com',
@@ -103,11 +113,13 @@ const makeSut = () => {
   const passwordValidator = new PasswordValidator();
   const encrypter = new EncrypterSpy();
   const fetchUserByEmailRepository = new FetchUserByEmailRepository();
+  const token = new TokenSpy();
   const sut = new LoginUserUseCase(
     mailValidator,
     passwordValidator,
     encrypter,
-    fetchUserByEmailRepository
+    fetchUserByEmailRepository,
+    token
   );
 
   return {
@@ -161,6 +173,20 @@ const makeEncrypterError = () => {
   }
 
   return new EncrypterSpy();
+};
+
+const makeTokenError = () => {
+  class TokenSpy {
+    create(): string {
+      throw new Error();
+    }
+
+    verify(): any {
+      throw new Error();
+    }
+  }
+
+  return new TokenSpy();
 };
 
 describe('Login User Use Case', () => {
@@ -263,7 +289,8 @@ describe('Login User Use Case', () => {
       makeMailValidatorError(),
       makePasswordValidatorError(),
       makeEncrypterError(),
-      makeFindUserByEmailRepositoryError()
+      makeFindUserByEmailRepositoryError(),
+      makeTokenError()
     );
 
     expect(sut.execute(loginData)).rejects.toThrow();

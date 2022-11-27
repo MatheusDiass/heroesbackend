@@ -1,16 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { User } from '../../../../../../../domain/modules/user';
 import { RegisterUserRepositoryInMemory } from './register-user-repository-in-memory';
-import { FetchUserByEmailRepositoryInMemory } from '../fetch-user-by-email-repository-in-memory/fetch-user-by-email-repository-in-memory';
 
 describe('Register User Repository In-Memory', () => {
-  it('', async () => {
+  it('should save the user', async () => {
     const email = 'test10@test.com';
     const sut = new RegisterUserRepositoryInMemory();
-    await sut.registerUser(
+    const user = await sut.registerUser(
       new User({
         name: 'Test',
-        lastName: 'Test',
+        lastname: 'Test',
         nickname: 'Test10',
         email,
         password: 'Test@Test10',
@@ -18,9 +17,6 @@ describe('Register User Repository In-Memory', () => {
         bio: '',
       })
     );
-
-    const fetchUserByEmailRepository = new FetchUserByEmailRepositoryInMemory();
-    const user = await fetchUserByEmailRepository.fetchUserByEmail(email);
 
     expect(user?.getEmail).toEqual(email);
   });
